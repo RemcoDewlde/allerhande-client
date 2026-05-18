@@ -1,5 +1,10 @@
 # allerhande-client
 
+[![npm version](https://img.shields.io/npm/v/allerhande-client.svg)](https://www.npmjs.com/package/allerhande-client)
+[![Release](https://github.com/RemcoDewlde/allerhande-client/actions/workflows/release.yml/badge.svg)](https://github.com/RemcoDewlde/allerhande-client/actions/workflows/release.yml)
+[![codecov](https://codecov.io/gh/RemcoDewlde/allerhande-client/branch/main/graph/badge.svg)](https://codecov.io/gh/RemcoDewlde/allerhande-client)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 Unofficial typed TypeScript/JavaScript client for the [Albert Heijn Allerhande](https://www.ah.nl/allerhande) recipe API.
 
 > **Warning**: This package wraps an undocumented, unofficial API. Albert Heijn may change or remove endpoints without notice.
