@@ -1,3 +1,5 @@
+import { AllerhandeAuthError } from "./errors.js";
+
 const AUTH_URL =
   "https://api.ah.nl/mobile-auth/v1/auth/token/anonymous";
 const REFRESH_URL =
@@ -18,6 +20,8 @@ interface StoredToken {
 export class AuthManager {
   private token: StoredToken | null = null;
 
+  constructor(private readonly fetchFn?: typeof fetch) {}
+
   async getAccessToken(): Promise<string> {
     if (this.token && Date.now() < this.token.expiresAt) {
       return this.token.accessToken;
@@ -34,15 +38,19 @@ export class AuthManager {
     return this.fetchAnonymousToken();
   }
 
+  private resolveFetch(): typeof fetch {
+    return this.fetchFn ?? globalThis.fetch;
+  }
+
   private async fetchAnonymousToken(): Promise<string> {
-    const res = await fetch(AUTH_URL, {
+    const res = await this.resolveFetch()(AUTH_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ clientId: "appie-android" }),
     });
 
     if (!res.ok) {
-      throw new Error(`Auth failed: ${res.status} ${res.statusText}`);
+      throw new AllerhandeAuthError(res.status, res.statusText);
     }
 
     const data = (await res.json()) as TokenResponse;
@@ -51,7 +59,7 @@ export class AuthManager {
   }
 
   private async refresh(refreshToken: string): Promise<string> {
-    const res = await fetch(REFRESH_URL, {
+    const res = await this.resolveFetch()(REFRESH_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -61,7 +69,7 @@ export class AuthManager {
     });
 
     if (!res.ok) {
-      throw new Error(`Token refresh failed: ${res.status}`);
+      throw new AllerhandeAuthError(res.status, res.statusText);
     }
 
     const data = (await res.json()) as TokenResponse;

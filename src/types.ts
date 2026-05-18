@@ -47,6 +47,13 @@ export interface RecipeSummary {
 
 export interface RecipeIngredient {
   id: number;
+  /**
+   * Raw quantity in the recipe's declared unit (e.g. `200` for "200 g").
+   *
+   * @remarks The ingredient name and unit of measurement are **not** returned
+   * by the recipe endpoint — they live in Albert Heijn's product catalog,
+   * keyed by `id`. There is no public bulk-resolve endpoint for them.
+   */
   quantity: number;
 }
 

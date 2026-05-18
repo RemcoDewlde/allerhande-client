@@ -5,11 +5,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-npm run build       # compile to dist/ (CJS + ESM + .d.ts)
-npm run dev         # watch mode
-npm run typecheck   # tsc --noEmit only, no emit
-npm test            # vitest run
-npm run test:watch  # vitest watch
+npm run build          # compile to dist/ (CJS + ESM + .d.ts)
+npm run dev            # watch mode
+npm run typecheck      # tsc --noEmit only, no emit
+npm test               # vitest run
+npm run test:watch     # vitest watch
+npm run test:coverage  # vitest run --coverage (100% thresholds enforced)
 ```
 
 ## Architecture
@@ -45,6 +46,24 @@ Both share: `id`, `title`, `publishedAt`, `images`, `tags`, `author`.
 ### PageSize
 
 The `size` parameter in `recipeSearchV2` accepts plain integers (5, 10, 12, 20, 24, 25, 50, 100) — not a GraphQL enum despite being typed `PageSize`.
+
+### Error types
+
+Three typed error classes are exported:
+
+| Class | Thrown when |
+|---|---|
+| `AllerhandeAuthError` | Token endpoint returns non-2xx; carries `statusCode` |
+| `AllerhandeApiError` | GraphQL endpoint returns non-2xx; carries `statusCode` |
+| `AllerhandeGraphQLError` | Response body has `errors[]` or no `data`; carries `messages[]` |
+
+### Injectable fetch
+
+`new AllerhandeClient({ fetch: customFetch })` injects the same fetch into both the auth layer and the GraphQL layer. Omitting the option falls back to `globalThis.fetch` at call time (not at construction time), so `vi.stubGlobal` still works in tests.
+
+### Pagination
+
+`client.searchAll(query, options)` is an async generator that manages `start` internally, incrementing by `result.result.length` after each page. It stops when `hasNextPage` is false or a page returns an empty array.
 
 ### Probing the schema
 

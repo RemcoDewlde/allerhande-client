@@ -45,6 +45,7 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { AuthManager } from "../src/auth.js";
+import { AllerhandeAuthError } from "../src/errors.js";
 
 // ---------------------------------------------------------------------------
 // Fixtures
@@ -316,23 +317,28 @@ describe("TS-AUTH: AuthManager", () => {
 
   /**
    * TC-AUTH-008
-   * Objective:      Verify that anonymous token acquisition propagates an
-   *                 error when the auth endpoint returns a non-OK response.
+   * Objective:      Verify that anonymous token acquisition throws an
+   *                 AllerhandeAuthError carrying the HTTP status code when
+   *                 the auth endpoint returns a non-OK response.
    * Requirement:    REQ-AUTH-001 (robustness — server error)
    * MC/DC coverage: D1=F(null), D2=F(null)
    *
    * Precondition:   No cached token; auth endpoint returns HTTP 503.
    * Input:          fetch responds with ok=false, status=503.
-   * Expected:       Error thrown containing the HTTP status text.
-   * Pass Criteria:  Promise rejects with Error; message includes "503".
+   * Expected:       AllerhandeAuthError thrown; statusCode=503.
+   * Pass Criteria:  Error is instanceof AllerhandeAuthError; statusCode===503.
    */
-  it("TC-AUTH-008: throws when the anonymous token endpoint returns a non-OK response", async () => {
+  it("TC-AUTH-008: throws AllerhandeAuthError with statusCode when the auth endpoint returns non-OK", async () => {
     vi.stubGlobal(
       "fetch",
       vi.fn().mockResolvedValue({ ok: false, status: 503, statusText: "Service Unavailable" }),
     );
 
-    await expect(auth.getAccessToken()).rejects.toThrow("503");
+    await expect(auth.getAccessToken()).rejects.toMatchObject({
+      name: "AllerhandeAuthError",
+      statusCode: 503,
+    });
+    await expect(auth.getAccessToken()).rejects.toBeInstanceOf(AllerhandeAuthError);
   });
 
   // -------------------------------------------------------------------------

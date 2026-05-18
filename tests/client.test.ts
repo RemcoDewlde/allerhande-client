@@ -23,15 +23,17 @@
  *   REQ-CLIENT-005  getRecipe() shall return the recipe field of the GraphQL
  *                   response as a typed Recipe.
  *
- *   REQ-CLIENT-006  The system shall throw an Error containing the HTTP status
- *                   text when the response status is not in the 2xx range.
+ *   REQ-CLIENT-006  The system shall throw an AllerhandeApiError containing
+ *                   the HTTP statusCode when the response status is not 2xx.
  *
- *   REQ-CLIENT-007  The system shall throw an Error containing all GraphQL
- *                   error messages joined by "; " when the response body
- *                   contains an errors array.
+ *   REQ-CLIENT-007  The system shall throw an AllerhandeGraphQLError with a
+ *                   messages array when the response body contains errors.
  *
- *   REQ-CLIENT-008  The system shall throw an Error when the response body
- *                   contains no data field.
+ *   REQ-CLIENT-008  The system shall throw an AllerhandeGraphQLError when the
+ *                   response body contains no data field.
+ *
+ *   REQ-CLIENT-009  The system shall use an injected fetch function in place
+ *                   of globalThis.fetch when one is provided at construction.
  *
  * Coverage target: statement + decision coverage for AllerhandeClient.graphql()
  *
@@ -46,11 +48,19 @@
  *   D6  !json.data
  *         D6=T  → TC-CLIENT-015
  *         D6=F  → TC-CLIENT-001 through TC-CLIENT-010
+ *
+ *   D7  options.fetch provided  (in AllerhandeClient constructor)
+ *         D7=T  → TC-CLIENT-019 through TC-CLIENT-021
+ *         D7=F  → TC-CLIENT-001 through TC-CLIENT-018 (use globalThis.fetch)
  * ============================================================
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, vi, afterEach } from "vitest";
 import { AllerhandeClient } from "../src/client.js";
+import {
+  AllerhandeApiError,
+  AllerhandeGraphQLError,
+} from "../src/errors.js";
 import type { Recipe, RecipeSearchResult } from "../src/types.js";
 
 // ---------------------------------------------------------------------------
@@ -59,7 +69,6 @@ import type { Recipe, RecipeSearchResult } from "../src/types.js";
 
 const GRAPHQL_URL = "https://api.ah.nl/graphql";
 const ANON_TOKEN_URL = "https://api.ah.nl/mobile-auth/v1/auth/token/anonymous";
-
 const MOCK_TOKEN = "test-bearer-token";
 
 const MOCK_SUMMARY = {
@@ -110,25 +119,27 @@ function graphqlResponse<T>(data: T) {
   return { data };
 }
 
-/**
- * Returns a mock fetch that:
- *   call 1 → anonymous token (for auth)
- *   call 2 → GraphQL response with the provided data
- */
-function mockFetchSequence(gqlData: unknown) {
+/** Builds a mock fetch: call 1 → auth token, call 2 → GraphQL payload. */
+function makeMockFetch(gqlData: unknown): ReturnType<typeof vi.fn> {
   return vi.fn()
     .mockResolvedValueOnce({ ok: true, json: vi.fn().mockResolvedValue(tokenResponse()) })
     .mockResolvedValueOnce({ ok: true, json: vi.fn().mockResolvedValue(gqlData) });
 }
 
+function makeClient(mockFetch: ReturnType<typeof vi.fn>): AllerhandeClient {
+  return new AllerhandeClient({ fetch: mockFetch });
+}
+
 function getGraphqlCall(mockFetch: ReturnType<typeof vi.fn>) {
-  // index 1 is the GraphQL call (index 0 is the auth call)
   return mockFetch.mock.calls[1] as [string, RequestInit];
 }
 
 function parseGraphqlBody(mockFetch: ReturnType<typeof vi.fn>) {
   const [, init] = getGraphqlCall(mockFetch);
-  return JSON.parse(init.body as string) as { query: string; variables: Record<string, unknown> };
+  return JSON.parse(init.body as string) as {
+    query: string;
+    variables: Record<string, unknown>;
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -136,12 +147,6 @@ function parseGraphqlBody(mockFetch: ReturnType<typeof vi.fn>) {
 // ---------------------------------------------------------------------------
 
 describe("TS-CLIENT: AllerhandeClient", () => {
-  let client: AllerhandeClient;
-
-  beforeEach(() => {
-    client = new AllerhandeClient();
-  });
-
   afterEach(() => {
     vi.restoreAllMocks();
   });
@@ -155,17 +160,17 @@ describe("TS-CLIENT: AllerhandeClient", () => {
    * Objective:      Verify GraphQL endpoint, Authorization header, and query
    *                 variable for a minimal search call.
    * Requirement:    REQ-CLIENT-001, REQ-CLIENT-002
-   * MC/DC coverage: D4=T, D5=F, D6=F
+   * MC/DC coverage: D4=T, D5=F, D6=F, D7=T
    *
-   * Precondition:   Fresh client instance.
+   * Precondition:   Fresh client with injected mock fetch.
    * Input:          searchRecipes("pasta") with no options.
    * Expected:       POST to GRAPHQL_URL; Authorization: Bearer <token>;
    *                 variables.searchText === "pasta".
    * Pass Criteria:  URL, header, and variable assertions pass.
    */
   it("TC-CLIENT-001: POSTs to the GraphQL endpoint with Bearer token and searchText variable", async () => {
-    const mockFetch = mockFetchSequence(graphqlResponse({ recipeSearchV2: MOCK_SEARCH_RESULT }));
-    vi.stubGlobal("fetch", mockFetch);
+    const mockFetch = makeMockFetch(graphqlResponse({ recipeSearchV2: MOCK_SEARCH_RESULT }));
+    const client = makeClient(mockFetch);
 
     await client.searchRecipes("pasta");
 
@@ -193,7 +198,8 @@ describe("TS-CLIENT: AllerhandeClient", () => {
    * Pass Criteria:  All field assertions match MOCK_SEARCH_RESULT.
    */
   it("TC-CLIENT-002: returns the typed RecipeSearchResult from the GraphQL response", async () => {
-    vi.stubGlobal("fetch", mockFetchSequence(graphqlResponse({ recipeSearchV2: MOCK_SEARCH_RESULT })));
+    const mockFetch = makeMockFetch(graphqlResponse({ recipeSearchV2: MOCK_SEARCH_RESULT }));
+    const client = makeClient(mockFetch);
 
     const result = await client.searchRecipes("pasta");
 
@@ -222,8 +228,8 @@ describe("TS-CLIENT: AllerhandeClient", () => {
    * Pass Criteria:  Each variable key and value matches the supplied option.
    */
   it("TC-CLIENT-003: passes all optional parameters as GraphQL variables", async () => {
-    const mockFetch = mockFetchSequence(graphqlResponse({ recipeSearchV2: MOCK_SEARCH_RESULT }));
-    vi.stubGlobal("fetch", mockFetch);
+    const mockFetch = makeMockFetch(graphqlResponse({ recipeSearchV2: MOCK_SEARCH_RESULT }));
+    const client = makeClient(mockFetch);
 
     await client.searchRecipes("soep", {
       size: 20,
@@ -253,8 +259,8 @@ describe("TS-CLIENT: AllerhandeClient", () => {
    * Pass Criteria:  variables.size === 5.
    */
   it("TC-CLIENT-004: forwards size=5 (lower boundary) as a GraphQL variable", async () => {
-    const mockFetch = mockFetchSequence(graphqlResponse({ recipeSearchV2: MOCK_SEARCH_RESULT }));
-    vi.stubGlobal("fetch", mockFetch);
+    const mockFetch = makeMockFetch(graphqlResponse({ recipeSearchV2: MOCK_SEARCH_RESULT }));
+    const client = makeClient(mockFetch);
 
     await client.searchRecipes("cake", { size: 5 });
 
@@ -274,8 +280,8 @@ describe("TS-CLIENT: AllerhandeClient", () => {
    * Pass Criteria:  variables.size === 100.
    */
   it("TC-CLIENT-005: forwards size=100 (upper boundary) as a GraphQL variable", async () => {
-    const mockFetch = mockFetchSequence(graphqlResponse({ recipeSearchV2: MOCK_SEARCH_RESULT }));
-    vi.stubGlobal("fetch", mockFetch);
+    const mockFetch = makeMockFetch(graphqlResponse({ recipeSearchV2: MOCK_SEARCH_RESULT }));
+    const client = makeClient(mockFetch);
 
     await client.searchRecipes("cake", { size: 100 });
 
@@ -294,8 +300,8 @@ describe("TS-CLIENT: AllerhandeClient", () => {
    * Pass Criteria:  variables.start === 0.
    */
   it("TC-CLIENT-006: forwards start=0 (zero offset) as a GraphQL variable", async () => {
-    const mockFetch = mockFetchSequence(graphqlResponse({ recipeSearchV2: MOCK_SEARCH_RESULT }));
-    vi.stubGlobal("fetch", mockFetch);
+    const mockFetch = makeMockFetch(graphqlResponse({ recipeSearchV2: MOCK_SEARCH_RESULT }));
+    const client = makeClient(mockFetch);
 
     await client.searchRecipes("cake", { start: 0 });
 
@@ -318,7 +324,7 @@ describe("TS-CLIENT: AllerhandeClient", () => {
    */
   it("TC-CLIENT-007: returns an empty result set when no recipes match the query", async () => {
     const empty: RecipeSearchResult = { page: { total: 0, hasNextPage: false }, result: [] };
-    vi.stubGlobal("fetch", mockFetchSequence(graphqlResponse({ recipeSearchV2: empty })));
+    const client = makeClient(makeMockFetch(graphqlResponse({ recipeSearchV2: empty })));
 
     const result = await client.searchRecipes("xyzzy_no_match");
 
@@ -338,8 +344,8 @@ describe("TS-CLIENT: AllerhandeClient", () => {
    * Pass Criteria:  variables.sortBy === "POPULAR".
    */
   it("TC-CLIENT-008: forwards sortBy=POPULAR as a GraphQL variable", async () => {
-    const mockFetch = mockFetchSequence(graphqlResponse({ recipeSearchV2: MOCK_SEARCH_RESULT }));
-    vi.stubGlobal("fetch", mockFetch);
+    const mockFetch = makeMockFetch(graphqlResponse({ recipeSearchV2: MOCK_SEARCH_RESULT }));
+    const client = makeClient(mockFetch);
 
     await client.searchRecipes("taart", { sortBy: "POPULAR" });
 
@@ -364,8 +370,8 @@ describe("TS-CLIENT: AllerhandeClient", () => {
    * Pass Criteria:  Variable and all recipe field assertions pass.
    */
   it("TC-CLIENT-009: sends the recipe id as a variable and returns the typed Recipe", async () => {
-    const mockFetch = mockFetchSequence(graphqlResponse({ recipe: MOCK_RECIPE }));
-    vi.stubGlobal("fetch", mockFetch);
+    const mockFetch = makeMockFetch(graphqlResponse({ recipe: MOCK_RECIPE }));
+    const client = makeClient(mockFetch);
 
     const recipe = await client.getRecipe(1);
 
@@ -395,7 +401,7 @@ describe("TS-CLIENT: AllerhandeClient", () => {
    */
   it("TC-CLIENT-010: returns a recipe with an empty tips array without error", async () => {
     const recipeNoTips: Recipe = { ...MOCK_RECIPE, tips: [] };
-    vi.stubGlobal("fetch", mockFetchSequence(graphqlResponse({ recipe: recipeNoTips })));
+    const client = makeClient(makeMockFetch(graphqlResponse({ recipe: recipeNoTips })));
 
     const recipe = await client.getRecipe(1);
 
@@ -403,139 +409,139 @@ describe("TS-CLIENT: AllerhandeClient", () => {
   });
 
   // =========================================================================
-  // Error handling — REQ-CLIENT-006, REQ-CLIENT-007, REQ-CLIENT-008
+  // Error handling
   // =========================================================================
 
   /**
    * TC-CLIENT-011
-   * Objective:      Verify an Error is thrown when the GraphQL HTTP response
-   *                 status is not OK (robustness — server error).
+   * Objective:      Verify an AllerhandeApiError with statusCode 500 is thrown
+   *                 when the GraphQL endpoint returns HTTP 500.
    * Requirement:    REQ-CLIENT-006
    * MC/DC coverage: D4=F
    *
    * Precondition:   Auth succeeds; GraphQL endpoint returns HTTP 500.
-   * Input:          searchRecipes("pasta") when GraphQL returns 500.
-   * Expected:       Promise rejects with an Error whose message contains "500".
-   * Pass Criteria:  Error thrown; message includes the status code.
+   * Input:          searchRecipes("pasta").
+   * Expected:       AllerhandeApiError with statusCode=500 thrown.
+   * Pass Criteria:  instanceof AllerhandeApiError; statusCode===500.
    */
-  it("TC-CLIENT-011: throws when the GraphQL endpoint returns HTTP 500", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn()
-        .mockResolvedValueOnce({ ok: true, json: vi.fn().mockResolvedValue(tokenResponse()) })
-        .mockResolvedValueOnce({ ok: false, status: 500, statusText: "Internal Server Error" }),
-    );
+  it("TC-CLIENT-011: throws AllerhandeApiError with statusCode 500 on HTTP 500", async () => {
+    const mockFetch = vi.fn()
+      .mockResolvedValueOnce({ ok: true, json: vi.fn().mockResolvedValue(tokenResponse()) })
+      .mockResolvedValueOnce({ ok: false, status: 500, statusText: "Internal Server Error" });
 
-    await expect(client.searchRecipes("pasta")).rejects.toThrow("500");
+    const err = await makeClient(mockFetch).searchRecipes("pasta").catch((e) => e);
+    expect(err).toBeInstanceOf(AllerhandeApiError);
+    expect((err as AllerhandeApiError).statusCode).toBe(500);
+    expect((err as AllerhandeApiError).name).toBe("AllerhandeApiError");
   });
 
   // -------------------------------------------------------------------------
 
   /**
    * TC-CLIENT-012
-   * Objective:      Verify an Error is thrown when the GraphQL endpoint
-   *                 returns HTTP 401 (robustness — authorization failure).
+   * Objective:      Verify an AllerhandeApiError with statusCode 401 is thrown
+   *                 when the GraphQL endpoint returns HTTP 401.
    * Requirement:    REQ-CLIENT-006
    * MC/DC coverage: D4=F (distinct status code from TC-CLIENT-011)
    *
    * Precondition:   Auth succeeds; GraphQL endpoint returns HTTP 401.
-   * Input:          getRecipe(1) when GraphQL returns 401.
-   * Expected:       Promise rejects with Error; message contains "401".
-   * Pass Criteria:  Error thrown; message includes the status code.
+   * Input:          getRecipe(1).
+   * Expected:       AllerhandeApiError with statusCode=401 thrown.
+   * Pass Criteria:  instanceof AllerhandeApiError; statusCode===401.
    */
-  it("TC-CLIENT-012: throws when the GraphQL endpoint returns HTTP 401", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn()
-        .mockResolvedValueOnce({ ok: true, json: vi.fn().mockResolvedValue(tokenResponse()) })
-        .mockResolvedValueOnce({ ok: false, status: 401, statusText: "Unauthorized" }),
-    );
+  it("TC-CLIENT-012: throws AllerhandeApiError with statusCode 401 on HTTP 401", async () => {
+    const mockFetch = vi.fn()
+      .mockResolvedValueOnce({ ok: true, json: vi.fn().mockResolvedValue(tokenResponse()) })
+      .mockResolvedValueOnce({ ok: false, status: 401, statusText: "Unauthorized" });
 
-    await expect(client.getRecipe(1)).rejects.toThrow("401");
+    await expect(makeClient(mockFetch).getRecipe(1)).rejects.toMatchObject({
+      name: "AllerhandeApiError",
+      statusCode: 401,
+    });
   });
 
   // -------------------------------------------------------------------------
 
   /**
    * TC-CLIENT-013
-   * Objective:      Verify an Error containing all GraphQL error messages is
-   *                 thrown when the response body includes an errors array with
-   *                 a single error.
+   * Objective:      Verify an AllerhandeGraphQLError is thrown with a single
+   *                 error message when the response errors array has one entry.
    * Requirement:    REQ-CLIENT-007
    * MC/DC coverage: D4=T, D5=T
    *
-   * Precondition:   HTTP 200 response with errors array (one entry).
+   * Precondition:   HTTP 200 response with errors: [{message: "Field not found"}].
    * Input:          searchRecipes("pasta").
-   * Expected:       Error thrown; message equals the single error message.
-   * Pass Criteria:  Error.message === "Field not found".
+   * Expected:       AllerhandeGraphQLError thrown; messages=["Field not found"].
+   * Pass Criteria:  instanceof AllerhandeGraphQLError; messages array matches.
    */
-  it("TC-CLIENT-013: throws with the GraphQL error message when errors array has one entry", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn()
-        .mockResolvedValueOnce({ ok: true, json: vi.fn().mockResolvedValue(tokenResponse()) })
-        .mockResolvedValueOnce({
-          ok: true,
-          json: vi.fn().mockResolvedValue({ errors: [{ message: "Field not found" }] }),
-        }),
-    );
+  it("TC-CLIENT-013: throws AllerhandeGraphQLError with single message from errors array", async () => {
+    const mockFetch = vi.fn()
+      .mockResolvedValueOnce({ ok: true, json: vi.fn().mockResolvedValue(tokenResponse()) })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: vi.fn().mockResolvedValue({ errors: [{ message: "Field not found" }] }),
+      });
 
-    await expect(client.searchRecipes("pasta")).rejects.toThrow("Field not found");
+    const err = await makeClient(mockFetch).searchRecipes("pasta").catch((e) => e);
+    expect(err).toBeInstanceOf(AllerhandeGraphQLError);
+    expect((err as AllerhandeGraphQLError).messages).toEqual(["Field not found"]);
+    expect((err as AllerhandeGraphQLError).name).toBe("AllerhandeGraphQLError");
   });
 
   // -------------------------------------------------------------------------
 
   /**
    * TC-CLIENT-014
-   * Objective:      Verify that multiple GraphQL errors are joined by "; " in
-   *                 the thrown Error message.
+   * Objective:      Verify that multiple GraphQL error messages are collected
+   *                 into the messages array and joined with "; " in the message.
    * Requirement:    REQ-CLIENT-007
    * MC/DC coverage: D4=T, D5=T (multiple errors)
    *
-   * Precondition:   HTTP 200 response with errors array containing two entries.
+   * Precondition:   HTTP 200 response with two entries in errors array.
    * Input:          searchRecipes("pasta").
-   * Expected:       Error message is "Error A; Error B".
-   * Pass Criteria:  Error.message === "Error A; Error B".
+   * Expected:       AllerhandeGraphQLError; messages=["Error A","Error B"];
+   *                 error.message === "Error A; Error B".
+   * Pass Criteria:  messages array has both entries; message string matches.
    */
-  it("TC-CLIENT-014: joins multiple GraphQL errors with \"; \" in the thrown message", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn()
-        .mockResolvedValueOnce({ ok: true, json: vi.fn().mockResolvedValue(tokenResponse()) })
-        .mockResolvedValueOnce({
-          ok: true,
-          json: vi.fn().mockResolvedValue({
-            errors: [{ message: "Error A" }, { message: "Error B" }],
-          }),
+  it("TC-CLIENT-014: collects multiple GraphQL errors into the messages array", async () => {
+    const mockFetch = vi.fn()
+      .mockResolvedValueOnce({ ok: true, json: vi.fn().mockResolvedValue(tokenResponse()) })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: vi.fn().mockResolvedValue({
+          errors: [{ message: "Error A" }, { message: "Error B" }],
         }),
-    );
+      });
 
-    await expect(client.searchRecipes("pasta")).rejects.toThrow("Error A; Error B");
+    await expect(makeClient(mockFetch).searchRecipes("pasta")).rejects.toMatchObject({
+      name: "AllerhandeGraphQLError",
+      messages: ["Error A", "Error B"],
+      message: "Error A; Error B",
+    });
   });
 
   // -------------------------------------------------------------------------
 
   /**
    * TC-CLIENT-015
-   * Objective:      Verify an Error is thrown when the response body contains
-   *                 no data field and no errors field (unexpected shape).
+   * Objective:      Verify an AllerhandeGraphQLError is thrown when the
+   *                 response body contains no data field and no errors field.
    * Requirement:    REQ-CLIENT-008
    * MC/DC coverage: D4=T, D5=F, D6=T
    *
    * Precondition:   HTTP 200 response body is {} (empty object).
    * Input:          getRecipe(1).
-   * Expected:       Promise rejects with an Error.
-   * Pass Criteria:  Error thrown (message not prescribed beyond being an Error).
+   * Expected:       AllerhandeGraphQLError thrown.
+   * Pass Criteria:  instanceof AllerhandeGraphQLError.
    */
-  it("TC-CLIENT-015: throws when the response body contains neither data nor errors", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn()
-        .mockResolvedValueOnce({ ok: true, json: vi.fn().mockResolvedValue(tokenResponse()) })
-        .mockResolvedValueOnce({ ok: true, json: vi.fn().mockResolvedValue({}) }),
-    );
+  it("TC-CLIENT-015: throws AllerhandeGraphQLError when the response has neither data nor errors", async () => {
+    const mockFetch = vi.fn()
+      .mockResolvedValueOnce({ ok: true, json: vi.fn().mockResolvedValue(tokenResponse()) })
+      .mockResolvedValueOnce({ ok: true, json: vi.fn().mockResolvedValue({}) });
 
-    await expect(client.getRecipe(1)).rejects.toThrow();
+    await expect(makeClient(mockFetch).getRecipe(1)).rejects.toBeInstanceOf(
+      AllerhandeGraphQLError,
+    );
   });
 
   // =========================================================================
@@ -548,14 +554,11 @@ describe("TS-CLIENT: AllerhandeClient", () => {
    *                 with GraphQL requests.
    * Requirement:    REQ-CLIENT-001
    *
-   * Precondition:   Auth token is "test-bearer-token".
-   * Input:          searchRecipes("pasta").
-   * Expected:       Authorization header is "Bearer test-bearer-token".
-   * Pass Criteria:  Header value matches expected string exactly.
+   * Pass Criteria:  Authorization header === "Bearer test-bearer-token".
    */
   it("TC-CLIENT-016: sends Authorization header in the format \"Bearer <token>\"", async () => {
-    const mockFetch = mockFetchSequence(graphqlResponse({ recipeSearchV2: MOCK_SEARCH_RESULT }));
-    vi.stubGlobal("fetch", mockFetch);
+    const mockFetch = makeMockFetch(graphqlResponse({ recipeSearchV2: MOCK_SEARCH_RESULT }));
+    const client = makeClient(mockFetch);
 
     await client.searchRecipes("pasta");
 
@@ -568,15 +571,14 @@ describe("TS-CLIENT: AllerhandeClient", () => {
 
   /**
    * TC-CLIENT-017
-   * Objective:      Verify Content-Type header is set to application/json on
-   *                 GraphQL requests.
+   * Objective:      Verify Content-Type header is set to application/json.
    * Requirement:    REQ-CLIENT-001
    *
    * Pass Criteria:  Content-Type header === "application/json".
    */
   it("TC-CLIENT-017: sends Content-Type: application/json on GraphQL requests", async () => {
-    const mockFetch = mockFetchSequence(graphqlResponse({ recipeSearchV2: MOCK_SEARCH_RESULT }));
-    vi.stubGlobal("fetch", mockFetch);
+    const mockFetch = makeMockFetch(graphqlResponse({ recipeSearchV2: MOCK_SEARCH_RESULT }));
+    const client = makeClient(mockFetch);
 
     await client.searchRecipes("pasta");
 
@@ -596,13 +598,16 @@ describe("TS-CLIENT: AllerhandeClient", () => {
    * Precondition:   Fresh client; token valid for > 60 s.
    * Input:          Two sequential searchRecipes calls.
    * Expected:       fetch called exactly 3 times: 1 auth + 2 GraphQL.
-   * Pass Criteria:  fetch.callCount === 3.
+   * Pass Criteria:  mockFetch.callCount === 3.
    */
   it("TC-CLIENT-018: reuses the cached auth token across multiple API calls", async () => {
     const mockFetch = vi.fn()
       .mockResolvedValueOnce({ ok: true, json: vi.fn().mockResolvedValue(tokenResponse()) })
-      .mockResolvedValue({ ok: true, json: vi.fn().mockResolvedValue(graphqlResponse({ recipeSearchV2: MOCK_SEARCH_RESULT })) });
-    vi.stubGlobal("fetch", mockFetch);
+      .mockResolvedValue({
+        ok: true,
+        json: vi.fn().mockResolvedValue(graphqlResponse({ recipeSearchV2: MOCK_SEARCH_RESULT })),
+      });
+    const client = new AllerhandeClient({ fetch: mockFetch });
 
     await client.searchRecipes("pasta");
     await client.searchRecipes("soep");
@@ -610,5 +615,118 @@ describe("TS-CLIENT: AllerhandeClient", () => {
     expect(mockFetch).toHaveBeenCalledTimes(3);
     const [firstUrl] = mockFetch.mock.calls[0];
     expect(firstUrl).toBe(ANON_TOKEN_URL);
+  });
+
+  // =========================================================================
+  // Injectable fetch — REQ-CLIENT-009
+  // =========================================================================
+
+  /**
+   * TC-CLIENT-019
+   * Objective:      Verify that the injected fetch function is used for all
+   *                 network requests (auth and GraphQL) instead of
+   *                 globalThis.fetch.
+   * Requirement:    REQ-CLIENT-009
+   * MC/DC coverage: D7=T
+   *
+   * Precondition:   globalThis.fetch is NOT stubbed; a custom fetch is
+   *                 injected via the constructor.
+   * Input:          AllerhandeClient({ fetch: customFetch }); searchRecipes().
+   * Expected:       customFetch is called; globalThis.fetch is never called.
+   * Pass Criteria:  customFetch.callCount === 2 (auth + GraphQL).
+   */
+  it("TC-CLIENT-019: uses the injected fetch for all requests, not globalThis.fetch", async () => {
+    const customFetch = makeMockFetch(
+      graphqlResponse({ recipeSearchV2: MOCK_SEARCH_RESULT }),
+    );
+    const globalSpy = vi.spyOn(globalThis, "fetch");
+
+    const client = new AllerhandeClient({ fetch: customFetch });
+    await client.searchRecipes("pasta");
+
+    expect(customFetch).toHaveBeenCalledTimes(2);
+    expect(globalSpy).not.toHaveBeenCalled();
+  });
+
+  // -------------------------------------------------------------------------
+
+  /**
+   * TC-CLIENT-020
+   * Objective:      Verify that the injected fetch is passed through to the
+   *                 auth layer so the same function handles token acquisition.
+   * Requirement:    REQ-CLIENT-009
+   *
+   * Precondition:   Custom fetch injected.
+   * Input:          getRecipe(); first call triggers auth.
+   * Expected:       First call to customFetch targets the anonymous token URL.
+   * Pass Criteria:  customFetch.mock.calls[0][0] === ANON_TOKEN_URL.
+   */
+  it("TC-CLIENT-020: injected fetch is also used for authentication requests", async () => {
+    const customFetch = makeMockFetch(graphqlResponse({ recipe: MOCK_RECIPE }));
+    const client = new AllerhandeClient({ fetch: customFetch });
+
+    await client.getRecipe(1);
+
+    const [firstUrl] = customFetch.mock.calls[0];
+    expect(firstUrl).toBe(ANON_TOKEN_URL);
+  });
+
+  // -------------------------------------------------------------------------
+
+  /**
+   * TC-CLIENT-021
+   * Objective:      Verify that a client created without the fetch option falls
+   *                 back to globalThis.fetch at call time.
+   * Requirement:    REQ-CLIENT-009
+   * MC/DC coverage: D7=F (no injected fetch → globalThis.fetch used)
+   *
+   * Precondition:   globalThis.fetch is stubbed; no fetch option provided.
+   * Input:          new AllerhandeClient() (no options); searchRecipes().
+   * Expected:       globalThis.fetch stub is called for auth and GraphQL.
+   * Pass Criteria:  globalFetch called twice; result is returned correctly.
+   */
+  it("TC-CLIENT-021: falls back to globalThis.fetch when no fetch option is provided", async () => {
+    const globalFetch = vi.fn()
+      .mockResolvedValueOnce({ ok: true, json: vi.fn().mockResolvedValue(tokenResponse()) })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: vi.fn().mockResolvedValue(
+          graphqlResponse({ recipeSearchV2: MOCK_SEARCH_RESULT }),
+        ),
+      });
+    vi.stubGlobal("fetch", globalFetch);
+
+    const client = new AllerhandeClient(); // no fetch option
+    const result = await client.searchRecipes("pasta");
+
+    expect(globalFetch).toHaveBeenCalledTimes(2);
+    expect(result.page.total).toBe(42);
+  });
+
+  // -------------------------------------------------------------------------
+
+  /**
+   * TC-CLIENT-022
+   * Objective:      Verify that two different client instances with different
+   *                 injected fetch functions remain fully isolated.
+   * Requirement:    REQ-CLIENT-009 (robustness — multiple instances)
+   *
+   * Precondition:   Two clients with independent mock fetch functions.
+   * Input:          Each client calls searchRecipes once.
+   * Expected:       Each fetch mock is called exactly twice (auth + GraphQL);
+   *                 the other mock is never called.
+   * Pass Criteria:  fetchA.callCount === 2; fetchB.callCount === 2; no cross-calls.
+   */
+  it("TC-CLIENT-022: two client instances with different fetch functions are isolated", async () => {
+    const fetchA = makeMockFetch(graphqlResponse({ recipeSearchV2: MOCK_SEARCH_RESULT }));
+    const fetchB = makeMockFetch(graphqlResponse({ recipeSearchV2: MOCK_SEARCH_RESULT }));
+    const clientA = new AllerhandeClient({ fetch: fetchA });
+    const clientB = new AllerhandeClient({ fetch: fetchB });
+
+    await clientA.searchRecipes("pasta");
+    await clientB.searchRecipes("soep");
+
+    expect(fetchA).toHaveBeenCalledTimes(2);
+    expect(fetchB).toHaveBeenCalledTimes(2);
   });
 });
