@@ -1,12 +1,8 @@
-import { AuthManager } from "./auth.js";
+import { AuthManager } from "./auth/manager.js";
 import { AllerhandeApiError, AllerhandeGraphQLError } from "./errors.js";
-import { GET_RECIPE_QUERY, SEARCH_RECIPES_QUERY } from "./queries.js";
-import type {
-  Recipe,
-  RecipeSearchResult,
-  RecipeSummary,
-  SearchRecipesOptions,
-} from "./types.js";
+import { GET_RECIPE_QUERY, SEARCH_RECIPES_QUERY } from "./recipe/queries.js";
+import type { Recipe, RecipeSummary } from "./recipe/types.js";
+import type { RecipeSearchResult, SearchRecipesOptions } from "./search/types.js";
 
 const GRAPHQL_URL = "https://api.ah.nl/graphql";
 

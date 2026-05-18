@@ -44,7 +44,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { AuthManager } from "../src/auth.js";
+import { AuthManager } from "../src/auth/manager.js";
 import { AllerhandeAuthError } from "../src/errors.js";
 
 // ---------------------------------------------------------------------------

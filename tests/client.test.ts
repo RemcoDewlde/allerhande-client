@@ -61,7 +61,8 @@ import {
   AllerhandeApiError,
   AllerhandeGraphQLError,
 } from "../src/errors.js";
-import type { Recipe, RecipeSearchResult } from "../src/types.js";
+import type { Recipe } from "../src/recipe/types.js";
+import type { RecipeSearchResult } from "../src/search/types.js";
 
 // ---------------------------------------------------------------------------
 // Fixtures

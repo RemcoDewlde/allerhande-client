@@ -7,7 +7,6 @@ export {
 } from "./errors.js";
 export { getRecipeUrl } from "./utils.js";
 export type {
-  PageInfo,
   Recipe,
   RecipeAuthor,
   RecipeImage,
@@ -15,11 +14,14 @@ export type {
   RecipeNutrient,
   RecipeNutritionInfo,
   RecipePreparation,
-  RecipeSearchFilter,
-  RecipeSearchResult,
-  RecipeSearchSortOption,
   RecipeSummary,
   RecipeTag,
   RecipeTip,
+} from "./recipe/types.js";
+export type {
+  PageInfo,
+  RecipeSearchFilter,
+  RecipeSearchResult,
+  RecipeSearchSortOption,
   SearchRecipesOptions,
-} from "./types.js";
+} from "./search/types.js";

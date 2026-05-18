@@ -37,7 +37,7 @@
 
 import { describe, it, expect, vi, afterEach } from "vitest";
 import { AllerhandeClient } from "../src/client.js";
-import type { RecipeSummary } from "../src/types.js";
+import type { RecipeSummary } from "../src/recipe/types.js";
 
 // ---------------------------------------------------------------------------
 // Helpers

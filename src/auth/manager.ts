@@ -1,4 +1,4 @@
-import { AllerhandeAuthError } from "./errors.js";
+import { AllerhandeAuthError } from "../errors.js";
 
 const AUTH_URL =
   "https://api.ah.nl/mobile-auth/v1/auth/token/anonymous";
