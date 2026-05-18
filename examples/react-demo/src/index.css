@@ -380,6 +380,49 @@ body {
   margin-bottom: 0.65rem;
 }
 
+/* ── Nutrition table ──────────────────────────────────── */
+.nutrition-per {
+  font-weight: 400;
+  font-size: 0.75em;
+  color: var(--text-dim);
+  text-transform: none;
+  letter-spacing: 0;
+  margin-left: 0.4rem;
+}
+
+.nutrition-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.nutrition-table tr {
+  border-bottom: 1px solid var(--border);
+}
+
+.nutrition-table tr:last-child {
+  border-bottom: none;
+}
+
+.nutrition-label {
+  color: var(--text-muted);
+  padding: 0.4rem 0;
+}
+
+.nutrition-indent .nutrition-label {
+  padding-left: 1.25rem;
+  color: var(--text-dim);
+  font-size: 0.825rem;
+}
+
+.nutrition-value {
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  padding: 0.4rem 0;
+  white-space: nowrap;
+}
+
 /* ── Ingredient list ──────────────────────────────────── */
 .ingredient-list {
   display: grid;

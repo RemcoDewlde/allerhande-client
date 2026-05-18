@@ -3,6 +3,7 @@ import type {
   RecipeSummary,
   PageInfo,
   RecipeSearchSortOption,
+  RecipeNutritionInfo,
 } from "allerhande-client";
 import { client } from "./client";
 import { RecipeCard } from "./RecipeCard";
@@ -15,6 +16,7 @@ const SUGGESTIONS = ["pasta carbonara", "soep", "risotto", "cake", "salade"];
 interface Selected {
   id: number;
   slug: string;
+  nutrition: RecipeNutritionInfo | null;
 }
 
 export default function App() {
@@ -130,7 +132,7 @@ export default function App() {
                 key={recipe.id}
                 recipe={recipe}
                 onClick={() =>
-                  setSelected({ id: recipe.id, slug: recipe.slug })
+                  setSelected({ id: recipe.id, slug: recipe.slug, nutrition: recipe.nutrition })
                 }
               />
             ))}
@@ -154,6 +156,7 @@ export default function App() {
         <RecipeDetail
           id={selected.id}
           slug={selected.slug}
+          nutrition={selected.nutrition}
           onClose={() => setSelected(null)}
         />
       )}

@@ -1,13 +1,27 @@
 import { useEffect, useState } from "react";
-import type { Recipe } from "allerhande-client";
+import type { Recipe, RecipeNutritionInfo } from "allerhande-client";
 import { getRecipeUrl } from "allerhande-client";
 import { client } from "./client";
 
 interface Props {
   id: number;
   slug: string;
+  nutrition: RecipeNutritionInfo | null;
   onClose: () => void;
 }
+
+const NUTRITION_ROWS: {
+  key: keyof RecipeNutritionInfo;
+  label: string;
+  indent?: boolean;
+}[] = [
+  { key: "energy",        label: "Energie" },
+  { key: "fat",           label: "Vet" },
+  { key: "saturatedFat",  label: "waarvan verzadigd", indent: true },
+  { key: "carbohydrates", label: "Koolhydraten" },
+  { key: "protein",       label: "Eiwitten" },
+  { key: "sodium",        label: "Natrium" },
+];
 
 /** Render API-supplied HTML safely, adding target=_blank to all links. */
 function RichText({
@@ -39,7 +53,7 @@ function ingredientLabel(
   return `${quantity} ${label}`;
 }
 
-export function RecipeDetail({ id, slug, onClose }: Props) {
+export function RecipeDetail({ id, slug, nutrition, onClose }: Props) {
   const [recipe, setRecipe] = useState<Recipe | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -92,6 +106,24 @@ export function RecipeDetail({ id, slug, onClose }: Props) {
               <p className="modal-description">
                 <RichText html={recipe.description} />
               </p>
+            )}
+
+            {nutrition && (
+              <section className="modal-section">
+                <h4>Voedingswaarden <span className="nutrition-per">per portie</span></h4>
+                <table className="nutrition-table">
+                  <tbody>
+                    {NUTRITION_ROWS.map(({ key, label, indent }) => (
+                      <tr key={key} className={indent ? "nutrition-indent" : ""}>
+                        <td className="nutrition-label">{label}</td>
+                        <td className="nutrition-value">
+                          {nutrition[key].value} {nutrition[key].unit}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </section>
             )}
 
             <section className="modal-section">
