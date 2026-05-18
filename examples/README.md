@@ -36,10 +36,12 @@ node search-all.js soep
 node search-all.js pasta --limit=50
 ```
 
-## Using a published version
+## Using the published version
 
-Once `allerhande-client` is on npm, change the dependency in `package.json`:
+`allerhande-client` is on npm. To use the published package instead of the local build, change the dependency in `package.json`:
 
 ```json
 "allerhande-client": "^1.0.0"
 ```
+
+Then run `npm install` — no `npm run build` step needed.
