@@ -31,6 +31,12 @@
     "typescript"
   ],
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/RemcoDewlde/allerhande-client.git"
+  },
+  "homepage": "https://remcodewlde.github.io/allerhande-client",
+  "bugs": "https://github.com/RemcoDewlde/allerhande-client/issues",
   "files": [
     "dist"
   ],
