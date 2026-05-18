@@ -12,7 +12,6 @@
   <style>
     :root {
       --orange: #f58220;
-      --orange-dark: #d96e10;
       --bg: #0f1117;
       --bg-card: #1a1d27;
       --bg-card-alt: #1e2130;
@@ -22,10 +21,11 @@
       --text-dim: #5c6070;
       --green: #4ade80;
       --blue: #60a5fa;
+      --yellow: #fbbf24;
       --radius: 10px;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
       font-family: "Inter", system-ui, sans-serif;
@@ -41,7 +41,7 @@
     nav {
       position: sticky;
       top: 0;
-      background: rgba(15, 17, 23, 0.85);
+      background: rgba(15, 17, 23, 0.88);
       backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--border);
       padding: 0 2rem;
@@ -57,6 +57,7 @@
       font-size: 1rem;
       letter-spacing: -0.02em;
       color: var(--text);
+      text-decoration: none;
     }
 
     .nav-brand span { color: var(--orange); }
@@ -109,10 +110,7 @@
       color: #fff;
     }
 
-    .hero h1 em {
-      font-style: normal;
-      color: var(--orange);
-    }
+    .hero h1 em { font-style: normal; color: var(--orange); }
 
     .hero p {
       font-size: 1.125rem;
@@ -142,17 +140,8 @@
     }
 
     .btn:hover { opacity: 0.85; text-decoration: none; }
-
-    .btn-primary {
-      background: var(--orange);
-      color: #fff;
-    }
-
-    .btn-secondary {
-      background: var(--bg-card);
-      color: var(--text);
-      border: 1px solid var(--border);
-    }
+    .btn-primary { background: var(--orange); color: #fff; }
+    .btn-secondary { background: var(--bg-card); color: var(--text); border: 1px solid var(--border); }
 
     /* ── Install block ────────────────────────────────────── */
     .install-block {
@@ -169,7 +158,7 @@
       margin: 0 auto 2.5rem;
     }
 
-    .install-block .prompt { color: var(--orange); select: none; }
+    .install-block .prompt { color: var(--orange); }
     .install-block code { color: var(--text); flex: 1; }
 
     .copy-btn {
@@ -187,7 +176,7 @@
     /* ── Features ─────────────────────────────────────────── */
     .features {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: 1rem;
       margin: 3rem 0;
     }
@@ -199,10 +188,7 @@
       padding: 1.25rem 1.5rem;
     }
 
-    .feature-icon {
-      font-size: 1.5rem;
-      margin-bottom: 0.6rem;
-    }
+    .feature-icon { font-size: 1.5rem; margin-bottom: 0.6rem; }
 
     .feature-card h3 {
       font-size: 0.9rem;
@@ -264,7 +250,7 @@
 
     pre code { background: none; border: none; padding: 0; }
 
-    /* ── Table ────────────────────────────────────────────── */
+    /* ── Tables ───────────────────────────────────────────── */
     table {
       width: 100%;
       border-collapse: collapse;
@@ -291,12 +277,11 @@
     }
 
     td:first-child code { font-size: 0.8rem; }
-
     tr:last-child td { border-bottom: none; }
 
-    /* ── Schema diff table ────────────────────────────────── */
     .check { color: var(--green); }
     .cross { color: var(--text-dim); }
+    .partial { color: var(--yellow); font-size: 0.75em; }
 
     /* ── Callout ──────────────────────────────────────────── */
     .callout {
@@ -310,6 +295,73 @@
     }
 
     .callout strong { color: var(--orange); }
+
+    .callout-info {
+      background: rgba(96, 165, 250, 0.07);
+      border-left-color: var(--blue);
+    }
+
+    .callout-info strong { color: var(--blue); }
+
+    /* ── Demo banner ──────────────────────────────────────── */
+    .demo-banner {
+      background: linear-gradient(135deg, #1a1d27 0%, #1e2130 100%);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .demo-banner-text h3 {
+      margin: 0 0 0.35rem;
+      font-size: 1rem;
+      color: #fff;
+    }
+
+    .demo-banner-text p {
+      margin: 0;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .demo-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+      margin-top: 1rem;
+      padding-left: 0;
+      list-style: none;
+      counter-reset: step;
+    }
+
+    .demo-steps li {
+      counter-increment: step;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    .demo-steps li::before {
+      content: counter(step);
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      color: var(--orange);
+      font-size: 0.7rem;
+      font-weight: 700;
+      width: 1.5rem;
+      height: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
 
     /* ── Footer ───────────────────────────────────────────── */
     footer {
@@ -327,11 +379,12 @@
 <body>
 
 <nav>
-  <span class="nav-brand"><span>allerhande</span>-api</span>
+  <a class="nav-brand" href="#"><span>allerhande</span>-client</a>
   <ul class="nav-links">
     <li><a href="#quickstart">Quick start</a></li>
     <li><a href="#examples">Examples</a></li>
     <li><a href="#reference">Reference</a></li>
+    <li><a href="#demo">Demo</a></li>
     <li><a href="https://github.com/RemcoDewlde/allerhande-client">GitHub ↗</a></li>
   </ul>
 </nav>
@@ -362,22 +415,32 @@
     <div class="feature-card">
       <div class="feature-icon">🔐</div>
       <h3>Auth handled for you</h3>
-      <p>Anonymous tokens are fetched and refreshed automatically. You never touch a token.</p>
+      <p>Anonymous tokens are fetched and refreshed automatically with a 60-second guard band. You never touch a token.</p>
     </div>
     <div class="feature-card">
       <div class="feature-icon">🏷️</div>
       <h3>Fully typed</h3>
-      <p>Every field has a TypeScript type. Nutrition, tags, ingredients, preparation steps — all typed.</p>
+      <p>Every field has a TypeScript type. Nutrition, tags, ingredient names, preparation steps — all typed.</p>
     </div>
     <div class="feature-card">
       <div class="feature-icon">📄</div>
       <h3>Async pagination</h3>
-      <p><code>searchAll()</code> is an async generator that pages through results automatically.</p>
+      <p><code>searchAll()</code> is an async generator that pages through all results automatically.</p>
     </div>
     <div class="feature-card">
       <div class="feature-icon">🧪</div>
       <h3>100% test coverage</h3>
-      <p>DO-178C style tests with full MC/DC branch coverage and typed error classes.</p>
+      <p>DO-178C style unit tests with MC/DC branch coverage, plus daily E2E smoke tests against the live API.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🔌</div>
+      <h3>Injectable fetch</h3>
+      <p>Pass a custom <code>fetch</code> for proxying, middleware, or test mocks. Defaults to <code>globalThis.fetch</code>.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">⚡</div>
+      <h3>Automated releases</h3>
+      <p>Conventional commits drive semantic versioning. Every <code>feat:</code> or <code>fix:</code> merged to <code>main</code> publishes a new version to npm.</p>
     </div>
   </div>
 
@@ -392,25 +455,33 @@ const client = new AllerhandeClient();
 
 const { page, result } = await client.searchRecipes("pasta carbonara");
 
-console.log(page.total);              // e.g. 42
-console.log(result[0].title);         // "Pasta carbonara"
-console.log(result[0].slug);          // "pasta-carbonara"
-console.log(result[0].tags);          // [{ key: "keuken", value: "italiaans" }, ...]
-console.log(result[0].nutrition?.energy); // { value: 275, unit: "kcal" }</code></pre>
+console.log(page.total);                   // e.g. 2953
+console.log(page.hasNextPage);             // true
+console.log(result[0].title);              // "Pasta carbonara van Roberta Pagnier"
+console.log(result[0].slug);               // "pasta-carbonara-van-roberta-pagnier"
+console.log(result[0].tags);               // [{ key: "keuken", value: "italiaans" }, ...]
+console.log(result[0].nutrition?.energy);  // { value: 550, unit: "kcal" } or null</code></pre>
 
     <h3>Fetch a full recipe</h3>
     <pre><code class="language-typescript">const recipe = await client.getRecipe(1202199);
 
-console.log(recipe.description);
-console.log(recipe.cookTime);             // minutes as number
-console.log(recipe.preparation.steps);   // string[]
-console.log(recipe.ingredients);         // [{ id, quantity }, ...]
-console.log(recipe.tips);                // [{ type, value }, ...]</code></pre>
+console.log(recipe.description);            // full Dutch description
+console.log(recipe.cookTime);               // 25 (minutes)
+console.log(recipe.preparation.steps);      // string[] — may contain HTML links
+console.log(recipe.tips);                   // [{ type: "bereidingstip", value: "..." }, ...]
+
+// Ingredient names are resolved — no extra lookup needed
+for (const ing of recipe.ingredients) {
+  const label = ing.quantity > 1 && ing.name.plural
+    ? ing.name.plural
+    : ing.name.singular;
+  console.log(`${ing.quantity} ${label}`);  // e.g. "200 guanciale"
+}</code></pre>
 
     <h3>Page through all results</h3>
     <pre><code class="language-typescript">for await (const recipe of client.searchAll("soep")) {
   console.log(recipe.title);
-  // Automatically fetches next pages until exhausted
+  // Fetches the next page automatically; stops when hasNextPage is false
 }</code></pre>
   </section>
 
@@ -429,21 +500,82 @@ const { result } = await client.searchRecipes("pasta", {
   ],
 });</code></pre>
 
-    <h3>Filter by ingredient</h3>
+    <h3>Filter by required ingredients</h3>
     <pre><code class="language-typescript">const { result } = await client.searchRecipes("pasta", {
   ingredients: ["ei", "pancetta"],
 });</code></pre>
+
+    <h3>Ingredient names with plural forms</h3>
+    <pre><code class="language-typescript">const recipe = await client.getRecipe(1202199);
+
+for (const ing of recipe.ingredients) {
+  // Use plural when quantity > 1 and a plural form exists
+  const name = ing.quantity !== 1 && ing.name.plural
+    ? ing.name.plural
+    : ing.name.singular;
+  console.log(`${ing.quantity}× ${name}`);
+}
+// → "200× guanciale"
+// → "5× middelgrote scharreleieren"
+// → "150× Pecorino Romano"
+// → "400× spaghetti"</code></pre>
+
+    <div class="callout callout-info">
+      <strong>Note:</strong> The API does not return a unit of measurement (g, ml, etc.) for ingredients — only the raw numeric quantity. Unit information lives in Albert Heijn's product catalog and is not exposed through the recipe endpoint.
+    </div>
+
+    <h3>Rendering HTML content</h3>
+    <p>Tips, preparation steps, and descriptions may contain raw HTML from the AH CMS, including links with unquoted <code>href</code> attributes. Normalise before rendering:</p>
+    <pre><code class="language-typescript">// Normalise bare href values and ensure links open in a new tab
+function safeHtml(raw: string): string {
+  return raw
+    .trim()
+    .replace(/href=(?!["'])([\S]+)/g, 'href="$1"')
+    .replace(/&lt;a(\s)/gi, '&lt;a target="_blank" rel="noopener noreferrer"$1');
+}
+
+// React example
+&lt;p dangerouslySetInnerHTML={{ __html: safeHtml(recipe.description) }} /&gt;</code></pre>
 
     <h3>Get the recipe URL</h3>
     <pre><code class="language-typescript">import { getRecipeUrl } from "allerhande-client";
 
 const url = getRecipeUrl(1202199, "pasta-carbonara");
-// https://www.ah.nl/allerhande/recept/R-R1202199/pasta-carbonara</code></pre>
+// → https://www.ah.nl/allerhande/recept/R-R1202199/pasta-carbonara</code></pre>
 
-    <h3>Injectable fetch (Node &lt; 18 / testing)</h3>
-    <pre><code class="language-typescript">import nodeFetch from "node-fetch";
+    <div class="callout callout-info">
+      <strong>Note:</strong> <code>slug</code> is only available on <code>RecipeSummary</code> (search results), not on <code>Recipe</code> (fetched by ID). Store the slug when you have it from search, or construct the URL from search results directly.
+    </div>
 
-const client = new AllerhandeClient({ fetch: nodeFetch as typeof fetch });</code></pre>
+    <h3>Injectable fetch — browser CORS proxy</h3>
+    <p>The API has no browser CORS headers. In a Vite app, proxy requests through the dev server and inject a rewriting fetch:</p>
+    <pre><code class="language-typescript">// vite.config.ts
+export default defineConfig({
+  server: {
+    proxy: {
+      "/api/ah": {
+        target: "https://api.ah.nl",
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/ah/, ""),
+        configure: (proxy) => {
+          // Strip Set-Cookie so the browser doesn't log CORS rejections
+          proxy.on("proxyRes", (res) => { delete res.headers["set-cookie"]; });
+        },
+      },
+    },
+  },
+});</code></pre>
+    <pre><code class="language-typescript">// src/client.ts
+import { AllerhandeClient } from "allerhande-client";
+
+const proxyFetch: typeof fetch = (input, init) =>
+  fetch(
+    String(input instanceof Request ? input.url : input)
+      .replace("https://api.ah.nl", "/api/ah"),
+    init
+  );
+
+export const client = new AllerhandeClient({ fetch: proxyFetch });</code></pre>
 
     <h3>Typed errors</h3>
     <pre><code class="language-typescript">import {
@@ -457,10 +589,44 @@ try {
 } catch (err) {
   if (err instanceof AllerhandeAuthError) {
     console.error("Auth failed:", err.statusCode, err.statusText);
+  } else if (err instanceof AllerhandeApiError) {
+    console.error("HTTP error:", err.statusCode);
   } else if (err instanceof AllerhandeGraphQLError) {
     console.error("GraphQL error:", err.messages);
   }
 }</code></pre>
+  </section>
+
+  <!-- Demo -->
+  <section id="demo">
+    <h2>Demo</h2>
+    <p>The repository ships two runnable demos — no package publish required.</p>
+
+    <div class="demo-banner">
+      <div class="demo-banner-text">
+        <h3>React + TypeScript (Vite)</h3>
+        <p>Full search UI: recipe cards with images and nutrition, detail modal with ingredient names, preparation steps, and tips. Uses the injectable fetch to proxy through Vite's dev server.</p>
+        <ol class="demo-steps">
+          <li><code>npm run build</code> &nbsp;— build the package from the repo root</li>
+          <li><code>cd examples/react-demo &amp;&amp; npm install</code></li>
+          <li><code>npm run dev</code> &nbsp;— opens on <code>localhost:5173</code></li>
+        </ol>
+      </div>
+      <a href="https://github.com/RemcoDewlde/allerhande-client/tree/main/examples/react-demo"
+         class="btn btn-secondary" target="_blank" rel="noopener noreferrer">
+        View source ↗
+      </a>
+    </div>
+
+    <h3 style="margin-top: 2rem">Node.js scripts</h3>
+    <p>Three standalone scripts in <code>examples/</code> — run directly with <code>node</code> after <code>npm run build &amp;&amp; cd examples &amp;&amp; npm install</code>.</p>
+
+    <table>
+      <tr><th>Script</th><th>What it shows</th></tr>
+      <tr><td><code>node search.js "pasta"</code></td><td>Search with <code>--size</code> and <code>--sort</code> flags, formatted output</td></tr>
+      <tr><td><code>node get-recipe.js [id]</code></td><td>Full recipe: description, ingredient names, numbered steps, tips</td></tr>
+      <tr><td><code>node search-all.js "soep" --limit=50</code></td><td>Async generator — streams all pages until the limit</td></tr>
+    </table>
   </section>
 
   <!-- API Reference -->
@@ -473,50 +639,77 @@ try {
 
     <table>
       <tr><th>Option</th><th>Type</th><th>Description</th></tr>
-      <tr><td><code>fetch</code></td><td><code>typeof fetch</code></td><td>Custom fetch. Falls back to <code>globalThis.fetch</code>.</td></tr>
+      <tr><td><code>fetch</code></td><td><code>typeof fetch</code></td><td>Custom fetch. Resolved lazily — falls back to <code>globalThis.fetch</code> at call time.</td></tr>
     </table>
 
     <h3>client.searchRecipes(query, options?)</h3>
-    <p>Returns <code>Promise&lt;RecipeSearchResult&gt;</code>. <code>RecipeSearchResult.result</code> is <code>RecipeSummary[]</code>.</p>
+    <p>Returns <code>Promise&lt;RecipeSearchResult&gt;</code> where <code>result</code> is <code>RecipeSummary[]</code>.</p>
 
     <table>
       <tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr>
-      <tr><td><code>size</code></td><td><code>number</code></td><td><code>10</code></td><td>Results per page. Allowed: 5, 10, 12, 20, 24, 25, 50, 100</td></tr>
+      <tr><td><code>size</code></td><td><code>number</code></td><td><code>10</code></td><td>Results per page. Allowed values: 5, 10, 12, 20, 24, 25, 50, 100</td></tr>
       <tr><td><code>start</code></td><td><code>number</code></td><td><code>0</code></td><td>Zero-based offset for pagination</td></tr>
       <tr><td><code>sortBy</code></td><td><code>"NEWEST" | "POPULAR"</code></td><td>—</td><td>Sort order</td></tr>
-      <tr><td><code>filters</code></td><td><code>RecipeSearchFilter[]</code></td><td>—</td><td>Tag-based filters</td></tr>
-      <tr><td><code>ingredients</code></td><td><code>string[]</code></td><td>—</td><td>Required ingredients</td></tr>
+      <tr><td><code>filters</code></td><td><code>RecipeSearchFilter[]</code></td><td>—</td><td>Tag-based filters (e.g. <code>menugang</code>, <code>keuken</code>)</td></tr>
+      <tr><td><code>ingredients</code></td><td><code>string[]</code></td><td>—</td><td>Required ingredient names (Dutch)</td></tr>
     </table>
 
     <h3>client.getRecipe(id)</h3>
-    <p>Fetches full recipe by numeric ID. Returns <code>Promise&lt;Recipe&gt;</code>.</p>
+    <p>Fetches a full recipe by its numeric ID. Returns <code>Promise&lt;Recipe&gt;</code>.</p>
 
     <h3>client.searchAll(query, options?)</h3>
-    <p>Async generator. Accepts same options as <code>searchRecipes</code> except <code>start</code> (managed internally). Yields <code>RecipeSummary</code> until all pages are exhausted.</p>
+    <p>Async generator. Accepts the same options as <code>searchRecipes</code> except <code>start</code> (managed internally). Yields one <code>RecipeSummary</code> at a time until all pages are exhausted.</p>
 
     <h3>getRecipeUrl(id, slug)</h3>
-    <p>Returns the canonical Allerhande URL for a recipe.</p>
+    <p>Returns the canonical <code>https://www.ah.nl/allerhande/recept/R-R{id}/{slug}</code> URL. The <code>slug</code> is only available on <code>RecipeSummary</code>.</p>
 
     <h3>Schema: RecipeSummary vs Recipe</h3>
-    <p>The upstream API exposes two distinct types that <strong>do not share fields</strong> beyond the common set.</p>
+    <p>The upstream GraphQL API has <strong>two distinct recipe types</strong> that do not share fields beyond the common set below.</p>
 
     <table>
       <tr><th>Field</th><th>RecipeSummary</th><th>Recipe</th></tr>
       <tr><td><code>id, title, publishedAt, images, tags, author</code></td><td class="check">✓</td><td class="check">✓</td></tr>
-      <tr><td><code>slug, nutrition</code></td><td class="check">✓</td><td class="cross">✗</td></tr>
-      <tr><td><code>description, cookTime, ingredients, preparation, tips</code></td><td class="cross">✗</td><td class="check">✓</td></tr>
+      <tr><td><code>slug</code></td><td class="check">✓</td><td class="cross">✗</td></tr>
+      <tr><td><code>nutrition</code></td><td class="check">✓ <span class="partial">(fields nullable)</span></td><td class="cross">✗</td></tr>
+      <tr><td><code>description, cookTime, preparation, tips</code></td><td class="cross">✗</td><td class="check">✓</td></tr>
+      <tr><td><code>ingredients</code> (with <code>name</code>)</td><td class="cross">✗</td><td class="check">✓</td></tr>
     </table>
+
+    <h3>Types</h3>
+    <pre><code class="language-typescript">interface RecipeIngredient {
+  id:       number;
+  quantity: number;  // raw numeric quantity — no unit returned by the API
+  name: {
+    singular: string;       // e.g. "middelgroot scharrelei"
+    plural:   string | null; // e.g. "middelgrote scharreleieren"
+  };
+}
+
+interface RecipeNutritionInfo {
+  // Individual fields are nullable — some recipes have partial data
+  energy:        RecipeNutrient | null;  // kcal
+  fat:           RecipeNutrient | null;  // g
+  saturatedFat:  RecipeNutrient | null;  // g
+  carbohydrates: RecipeNutrient | null;  // g
+  protein:       RecipeNutrient | null;  // g
+  sodium:        RecipeNutrient | null;  // mg
+}
+
+interface RecipeNutrient {
+  value: number;
+  unit:  string;
+}</code></pre>
 
     <h3>Error types</h3>
     <table>
-      <tr><th>Class</th><th>Thrown when</th></tr>
-      <tr><td><code>AllerhandeAuthError</code></td><td>Token endpoint returns non-2xx. Carries <code>statusCode</code>, <code>statusText</code>.</td></tr>
-      <tr><td><code>AllerhandeApiError</code></td><td>GraphQL endpoint returns non-2xx. Carries <code>statusCode</code>, <code>statusText</code>.</td></tr>
-      <tr><td><code>AllerhandeGraphQLError</code></td><td>Response body has <code>errors[]</code> or no <code>data</code>. Carries <code>messages[]</code>.</td></tr>
+      <tr><th>Class</th><th>Thrown when</th><th>Extra properties</th></tr>
+      <tr><td><code>AllerhandeAuthError</code></td><td>Token endpoint returns non-2xx</td><td><code>statusCode</code>, <code>statusText</code></td></tr>
+      <tr><td><code>AllerhandeApiError</code></td><td>GraphQL endpoint returns non-2xx</td><td><code>statusCode</code>, <code>statusText</code></td></tr>
+      <tr><td><code>AllerhandeGraphQLError</code></td><td>Response has <code>errors[]</code> or no <code>data</code></td><td><code>messages: string[]</code></td></tr>
     </table>
 
     <div class="callout">
-      <strong>Note:</strong> This wraps an undocumented API. Albert Heijn may change or remove endpoints without notice. Use the <a href="https://github.com/RemcoDewlde/allerhande-client/blob/main/tests/e2e/smoke.test.ts">E2E smoke tests</a> to detect breaking changes early.
+      <strong>Disclaimer:</strong> This wraps an undocumented, unofficial API. Albert Heijn may change or remove endpoints without notice. The <a href="https://github.com/RemcoDewlde/allerhande-client/blob/main/tests/e2e/smoke.test.ts">E2E smoke tests</a> run daily on GitHub Actions to catch upstream breakage early.
     </div>
   </section>
 
