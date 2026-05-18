@@ -113,14 +113,19 @@ export function RecipeDetail({ id, slug, nutrition, onClose }: Props) {
                 <h4>Voedingswaarden <span className="nutrition-per">per portie</span></h4>
                 <table className="nutrition-table">
                   <tbody>
-                    {NUTRITION_ROWS.map(({ key, label, indent }) => (
-                      <tr key={key} className={indent ? "nutrition-indent" : ""}>
-                        <td className="nutrition-label">{label}</td>
-                        <td className="nutrition-value">
-                          {nutrition[key].value} {nutrition[key].unit}
-                        </td>
-                      </tr>
-                    ))}
+                    {NUTRITION_ROWS.map(({ key, label, indent }) => {
+                      const nutrient = nutrition[key];
+                      return (
+                        <tr key={key} className={indent ? "nutrition-indent" : ""}>
+                          <td className="nutrition-label">{label}</td>
+                          <td className="nutrition-value">
+                            {nutrient != null
+                              ? `${nutrient.value} ${nutrient.unit}`
+                              : "—"}
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </section>

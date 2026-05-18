@@ -20,12 +20,12 @@ export interface RecipeNutrient {
 
 /** Per-serving nutritional information (only available on search summaries) */
 export interface RecipeNutritionInfo {
-  energy: RecipeNutrient;
-  fat: RecipeNutrient;
-  saturatedFat: RecipeNutrient;
-  carbohydrates: RecipeNutrient;
-  protein: RecipeNutrient;
-  sodium: RecipeNutrient;
+  energy: RecipeNutrient | null;
+  fat: RecipeNutrient | null;
+  saturatedFat: RecipeNutrient | null;
+  carbohydrates: RecipeNutrient | null;
+  protein: RecipeNutrient | null;
+  sodium: RecipeNutrient | null;
 }
 
 export interface RecipeAuthor {
