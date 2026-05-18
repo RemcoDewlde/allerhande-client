@@ -1,0 +1,49 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+
+# Skip the release commit that semantic-release pushes back
+# (it includes [skip ci] in the message, but this is a belt-and-suspenders guard)
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    # Don't re-run on the version-bump commit semantic-release pushes
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write       # push version-bump commit + create GitHub release
+      issues: write         # comment on released issues
+      pull-requests: write  # comment on released PRs
+      id-token: write       # npm provenance
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # semantic-release needs full git history
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Unit tests
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+      - name: Release
+        run: npx semantic-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_PROVENANCE: "true"
