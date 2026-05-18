@@ -18,14 +18,24 @@
     "dev": "tsup --watch",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
-  "keywords": ["albert-heijn", "allerhande", "recipes", "api", "typescript"],
+  "keywords": [
+    "albert-heijn",
+    "allerhande",
+    "recipes",
+    "api",
+    "typescript"
+  ],
   "license": "MIT",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "devDependencies": {
+    "@vitest/coverage-v8": "^4.1.6",
     "tsup": "^8.0.0",
     "typescript": "^5.0.0",
-    "vitest": "^2.0.0"
+    "vitest": "^4.1.6"
   }
 }
