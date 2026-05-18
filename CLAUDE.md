@@ -8,9 +8,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 npm run build          # compile to dist/ (CJS + ESM + .d.ts)
 npm run dev            # watch mode
 npm run typecheck      # tsc --noEmit only, no emit
-npm test               # vitest run
+npm test               # vitest run (unit tests, mocked)
 npm run test:watch     # vitest watch
 npm run test:coverage  # vitest run --coverage (100% thresholds enforced)
+npm run test:e2e       # vitest run --config vitest.e2e.config.ts (real API, slow)
 ```
 
 ## Architecture
@@ -64,6 +65,16 @@ Three typed error classes are exported:
 ### Pagination
 
 `client.searchAll(query, options)` is an async generator that manages `start` internally, incrementing by `result.result.length` after each page. It stops when `hasNextPage` is false or a page returns an empty array.
+
+### E2E smoke tests
+
+`tests/e2e/smoke.test.ts` hits the real AH API (no mocks). Uses a separate config (`vitest.e2e.config.ts`) with a 30 s timeout and sequential execution to avoid hammering the API. Run with `npm run test:e2e`. CI runs these daily via `.github/workflows/e2e.yml`. If E2E fails while unit tests pass → AH changed something upstream.
+
+Known fixture: recipe ID `1202199` (pasta carbonara). Update the `FIXTURE_ID` / `FIXTURE_SLUG` constants in the test file if AH removes it.
+
+### GitHub Pages
+
+Static docs page lives in `docs/index.html`. Deployed by `.github/workflows/pages.yml` on every push to `main`. Enable GitHub Pages → Source: GitHub Actions in the repo settings to activate.
 
 ### Probing the schema
 

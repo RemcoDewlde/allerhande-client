@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>allerhande-api — Typed Albert Heijn recipe client</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/typescript.min.js"></script>
+  <style>
+    :root {
+      --orange: #f58220;
+      --orange-dark: #d96e10;
+      --bg: #0f1117;
+      --bg-card: #1a1d27;
+      --bg-card-alt: #1e2130;
+      --border: #2a2d3e;
+      --text: #e8eaf0;
+      --text-muted: #8b90a0;
+      --text-dim: #5c6070;
+      --green: #4ade80;
+      --blue: #60a5fa;
+      --radius: 10px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "Inter", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    a { color: var(--orange); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── Nav ──────────────────────────────────────────────── */
+    nav {
+      position: sticky;
+      top: 0;
+      background: rgba(15, 17, 23, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 100;
+    }
+
+    .nav-brand {
+      font-weight: 700;
+      font-size: 1rem;
+      letter-spacing: -0.02em;
+      color: var(--text);
+    }
+
+    .nav-brand span { color: var(--orange); }
+
+    .nav-links {
+      display: flex;
+      gap: 1.5rem;
+      list-style: none;
+      font-size: 0.875rem;
+    }
+
+    .nav-links a { color: var(--text-muted); }
+    .nav-links a:hover { color: var(--text); text-decoration: none; }
+
+    /* ── Layout ───────────────────────────────────────────── */
+    .container {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+
+    /* ── Hero ─────────────────────────────────────────────── */
+    .hero {
+      padding: 5rem 0 3.5rem;
+      text-align: center;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: rgba(245, 130, 32, 0.12);
+      border: 1px solid rgba(245, 130, 32, 0.3);
+      color: var(--orange);
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.3rem 0.75rem;
+      border-radius: 100px;
+      margin-bottom: 1.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .hero h1 {
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      line-height: 1.15;
+      margin-bottom: 1rem;
+      color: #fff;
+    }
+
+    .hero h1 em {
+      font-style: normal;
+      color: var(--orange);
+    }
+
+    .hero p {
+      font-size: 1.125rem;
+      color: var(--text-muted);
+      max-width: 520px;
+      margin: 0 auto 2rem;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.65rem 1.3rem;
+      border-radius: var(--radius);
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.15s;
+      text-decoration: none;
+    }
+
+    .btn:hover { opacity: 0.85; text-decoration: none; }
+
+    .btn-primary {
+      background: var(--orange);
+      color: #fff;
+    }
+
+    .btn-secondary {
+      background: var(--bg-card);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    /* ── Install block ────────────────────────────────────── */
+    .install-block {
+      display: flex;
+      align-items: center;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.75rem 1.25rem;
+      gap: 0.75rem;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.9rem;
+      max-width: 340px;
+      margin: 0 auto 2.5rem;
+    }
+
+    .install-block .prompt { color: var(--orange); select: none; }
+    .install-block code { color: var(--text); flex: 1; }
+
+    .copy-btn {
+      background: none;
+      border: none;
+      color: var(--text-dim);
+      cursor: pointer;
+      padding: 0.2rem;
+      font-size: 0.8rem;
+      transition: color 0.15s;
+    }
+
+    .copy-btn:hover { color: var(--text); }
+
+    /* ── Features ─────────────────────────────────────────── */
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+      margin: 3rem 0;
+    }
+
+    .feature-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem 1.5rem;
+    }
+
+    .feature-icon {
+      font-size: 1.5rem;
+      margin-bottom: 0.6rem;
+    }
+
+    .feature-card h3 {
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 0.35rem;
+      color: #fff;
+    }
+
+    .feature-card p {
+      font-size: 0.825rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* ── Sections ─────────────────────────────────────────── */
+    section { margin: 4rem 0; }
+
+    h2 {
+      font-size: 1.35rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      margin-bottom: 1.25rem;
+      color: #fff;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text);
+      margin: 1.75rem 0 0.75rem;
+    }
+
+    p { margin-bottom: 0.75rem; color: var(--text-muted); font-size: 0.9rem; }
+
+    /* ── Code blocks ──────────────────────────────────────── */
+    pre {
+      background: #0d1117 !important;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      overflow-x: auto;
+      margin: 0.5rem 0 1.25rem;
+      font-size: 0.82rem;
+      line-height: 1.6;
+    }
+
+    pre code.hljs { background: transparent; padding: 0; font-family: "JetBrains Mono", monospace; }
+
+    code {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.82em;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      padding: 0.1em 0.4em;
+      border-radius: 4px;
+    }
+
+    pre code { background: none; border: none; padding: 0; }
+
+    /* ── Table ────────────────────────────────────────────── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+      margin: 0.5rem 0 1.25rem;
+    }
+
+    th {
+      text-align: left;
+      padding: 0.6rem 0.75rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      font-size: 0.8rem;
+      border-bottom: 1px solid var(--border);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    td {
+      padding: 0.6rem 0.75rem;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+      vertical-align: top;
+    }
+
+    td:first-child code { font-size: 0.8rem; }
+
+    tr:last-child td { border-bottom: none; }
+
+    /* ── Schema diff table ────────────────────────────────── */
+    .check { color: var(--green); }
+    .cross { color: var(--text-dim); }
+
+    /* ── Callout ──────────────────────────────────────────── */
+    .callout {
+      background: rgba(245, 130, 32, 0.08);
+      border-left: 3px solid var(--orange);
+      border-radius: 0 var(--radius) var(--radius) 0;
+      padding: 0.85rem 1rem;
+      margin: 1rem 0;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .callout strong { color: var(--orange); }
+
+    /* ── Footer ───────────────────────────────────────────── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 2rem 0;
+      text-align: center;
+      color: var(--text-dim);
+      font-size: 0.8rem;
+      margin-top: 4rem;
+    }
+
+    footer a { color: var(--text-muted); }
+  </style>
+</head>
+<body>
+
+<nav>
+  <span class="nav-brand"><span>allerhande</span>-api</span>
+  <ul class="nav-links">
+    <li><a href="#quickstart">Quick start</a></li>
+    <li><a href="#examples">Examples</a></li>
+    <li><a href="#reference">Reference</a></li>
+    <li><a href="https://github.com/remcodewilde/allerhande-api">GitHub ↗</a></li>
+  </ul>
+</nav>
+
+<main>
+<div class="container">
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="badge">Unofficial · TypeScript · Zero deps</div>
+    <h1>The typed client for<br /><em>Allerhande</em> recipes</h1>
+    <p>Search, filter, and fetch recipes from Albert Heijn's undocumented API with full TypeScript types and automatic auth.</p>
+
+    <div class="install-block">
+      <span class="prompt">$</span>
+      <code id="install-cmd">npm install allerhande-api</code>
+      <button class="copy-btn" onclick="copyInstall()" title="Copy">⎘</button>
+    </div>
+
+    <div class="hero-actions">
+      <a href="#quickstart" class="btn btn-primary">Get started</a>
+      <a href="https://github.com/remcodewilde/allerhande-api" class="btn btn-secondary">View on GitHub</a>
+    </div>
+  </div>
+
+  <!-- Features -->
+  <div class="features">
+    <div class="feature-card">
+      <div class="feature-icon">🔐</div>
+      <h3>Auth handled for you</h3>
+      <p>Anonymous tokens are fetched and refreshed automatically. You never touch a token.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🏷️</div>
+      <h3>Fully typed</h3>
+      <p>Every field has a TypeScript type. Nutrition, tags, ingredients, preparation steps — all typed.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📄</div>
+      <h3>Async pagination</h3>
+      <p><code>searchAll()</code> is an async generator that pages through results automatically.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🧪</div>
+      <h3>100% test coverage</h3>
+      <p>DO-178C style tests with full MC/DC branch coverage and typed error classes.</p>
+    </div>
+  </div>
+
+  <!-- Quick start -->
+  <section id="quickstart">
+    <h2>Quick start</h2>
+
+    <h3>Search recipes</h3>
+    <pre><code class="language-typescript">import { AllerhandeClient } from "allerhande-api";
+
+const client = new AllerhandeClient();
+
+const { page, result } = await client.searchRecipes("pasta carbonara");
+
+console.log(page.total);              // e.g. 42
+console.log(result[0].title);         // "Pasta carbonara"
+console.log(result[0].slug);          // "pasta-carbonara"
+console.log(result[0].tags);          // [{ key: "keuken", value: "italiaans" }, ...]
+console.log(result[0].nutrition?.energy); // { value: 275, unit: "kcal" }</code></pre>
+
+    <h3>Fetch a full recipe</h3>
+    <pre><code class="language-typescript">const recipe = await client.getRecipe(1202199);
+
+console.log(recipe.description);
+console.log(recipe.cookTime);             // minutes as number
+console.log(recipe.preparation.steps);   // string[]
+console.log(recipe.ingredients);         // [{ id, quantity }, ...]
+console.log(recipe.tips);                // [{ type, value }, ...]</code></pre>
+
+    <h3>Page through all results</h3>
+    <pre><code class="language-typescript">for await (const recipe of client.searchAll("soep")) {
+  console.log(recipe.title);
+  // Automatically fetches next pages until exhausted
+}</code></pre>
+  </section>
+
+  <!-- Examples -->
+  <section id="examples">
+    <h2>Examples</h2>
+
+    <h3>Sort and filter</h3>
+    <pre><code class="language-typescript">// Most popular Italian main courses
+const { result } = await client.searchRecipes("pasta", {
+  size: 20,
+  sortBy: "POPULAR",
+  filters: [
+    { group: "menugang", values: ["hoofdgerecht"] },
+    { group: "keuken",   values: ["italiaans"]    },
+  ],
+});</code></pre>
+
+    <h3>Filter by ingredient</h3>
+    <pre><code class="language-typescript">const { result } = await client.searchRecipes("pasta", {
+  ingredients: ["ei", "pancetta"],
+});</code></pre>
+
+    <h3>Get the recipe URL</h3>
+    <pre><code class="language-typescript">import { getRecipeUrl } from "allerhande-api";
+
+const url = getRecipeUrl(1202199, "pasta-carbonara");
+// https://www.ah.nl/allerhande/recept/R-R1202199/pasta-carbonara</code></pre>
+
+    <h3>Injectable fetch (Node &lt; 18 / testing)</h3>
+    <pre><code class="language-typescript">import nodeFetch from "node-fetch";
+
+const client = new AllerhandeClient({ fetch: nodeFetch as typeof fetch });</code></pre>
+
+    <h3>Typed errors</h3>
+    <pre><code class="language-typescript">import {
+  AllerhandeAuthError,
+  AllerhandeApiError,
+  AllerhandeGraphQLError,
+} from "allerhande-api";
+
+try {
+  const recipe = await client.getRecipe(id);
+} catch (err) {
+  if (err instanceof AllerhandeAuthError) {
+    console.error("Auth failed:", err.statusCode, err.statusText);
+  } else if (err instanceof AllerhandeGraphQLError) {
+    console.error("GraphQL error:", err.messages);
+  }
+}</code></pre>
+  </section>
+
+  <!-- API Reference -->
+  <section id="reference">
+    <h2>API Reference</h2>
+
+    <h3>AllerhandeClient</h3>
+    <pre><code class="language-typescript">new AllerhandeClient(options?: AllerhandeClientOptions)</code></pre>
+    <p>Creates a client instance. Each instance manages its own token lifecycle in memory.</p>
+
+    <table>
+      <tr><th>Option</th><th>Type</th><th>Description</th></tr>
+      <tr><td><code>fetch</code></td><td><code>typeof fetch</code></td><td>Custom fetch. Falls back to <code>globalThis.fetch</code>.</td></tr>
+    </table>
+
+    <h3>client.searchRecipes(query, options?)</h3>
+    <p>Returns <code>Promise&lt;RecipeSearchResult&gt;</code>. <code>RecipeSearchResult.result</code> is <code>RecipeSummary[]</code>.</p>
+
+    <table>
+      <tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr>
+      <tr><td><code>size</code></td><td><code>number</code></td><td><code>10</code></td><td>Results per page. Allowed: 5, 10, 12, 20, 24, 25, 50, 100</td></tr>
+      <tr><td><code>start</code></td><td><code>number</code></td><td><code>0</code></td><td>Zero-based offset for pagination</td></tr>
+      <tr><td><code>sortBy</code></td><td><code>"NEWEST" | "POPULAR"</code></td><td>—</td><td>Sort order</td></tr>
+      <tr><td><code>filters</code></td><td><code>RecipeSearchFilter[]</code></td><td>—</td><td>Tag-based filters</td></tr>
+      <tr><td><code>ingredients</code></td><td><code>string[]</code></td><td>—</td><td>Required ingredients</td></tr>
+    </table>
+
+    <h3>client.getRecipe(id)</h3>
+    <p>Fetches full recipe by numeric ID. Returns <code>Promise&lt;Recipe&gt;</code>.</p>
+
+    <h3>client.searchAll(query, options?)</h3>
+    <p>Async generator. Accepts same options as <code>searchRecipes</code> except <code>start</code> (managed internally). Yields <code>RecipeSummary</code> until all pages are exhausted.</p>
+
+    <h3>getRecipeUrl(id, slug)</h3>
+    <p>Returns the canonical Allerhande URL for a recipe.</p>
+
+    <h3>Schema: RecipeSummary vs Recipe</h3>
+    <p>The upstream API exposes two distinct types that <strong>do not share fields</strong> beyond the common set.</p>
+
+    <table>
+      <tr><th>Field</th><th>RecipeSummary</th><th>Recipe</th></tr>
+      <tr><td><code>id, title, publishedAt, images, tags, author</code></td><td class="check">✓</td><td class="check">✓</td></tr>
+      <tr><td><code>slug, nutrition</code></td><td class="check">✓</td><td class="cross">✗</td></tr>
+      <tr><td><code>description, cookTime, ingredients, preparation, tips</code></td><td class="cross">✗</td><td class="check">✓</td></tr>
+    </table>
+
+    <h3>Error types</h3>
+    <table>
+      <tr><th>Class</th><th>Thrown when</th></tr>
+      <tr><td><code>AllerhandeAuthError</code></td><td>Token endpoint returns non-2xx. Carries <code>statusCode</code>, <code>statusText</code>.</td></tr>
+      <tr><td><code>AllerhandeApiError</code></td><td>GraphQL endpoint returns non-2xx. Carries <code>statusCode</code>, <code>statusText</code>.</td></tr>
+      <tr><td><code>AllerhandeGraphQLError</code></td><td>Response body has <code>errors[]</code> or no <code>data</code>. Carries <code>messages[]</code>.</td></tr>
+    </table>
+
+    <div class="callout">
+      <strong>Note:</strong> This wraps an undocumented API. Albert Heijn may change or remove endpoints without notice. Use the <a href="https://github.com/remcodewilde/allerhande-api/blob/main/tests/e2e/smoke.test.ts">E2E smoke tests</a> to detect breaking changes early.
+    </div>
+  </section>
+
+</div>
+</main>
+
+<footer>
+  <div class="container">
+    <p>
+      <a href="https://github.com/remcodewilde/allerhande-api">allerhande-api</a> ·
+      MIT License ·
+      Not affiliated with Albert Heijn
+    </p>
+  </div>
+</footer>
+
+<script>
+  hljs.highlightAll();
+
+  function copyInstall() {
+    navigator.clipboard.writeText("npm install allerhande-api");
+    const btn = document.querySelector(".copy-btn");
+    const orig = btn.textContent;
+    btn.textContent = "✓";
+    setTimeout(() => { btn.textContent = orig; }, 1500);
+  }
+</script>
+</body>
+</html>
