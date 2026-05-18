@@ -28,6 +28,12 @@ AllerhandeClient  →  AuthManager  →  POST /mobile-auth/v1/auth/token/anonymo
 
 `AuthManager` holds the token in memory, auto-refreshes on expiry (60 s buffer before `expires_in`), and falls back to a fresh anonymous token if refresh fails.
 
+### Ingredient names
+
+`RecipeIngredient` has `name { singular plural }` — the plural is `null` for uncountable nouns (e.g. "spaghetti"). There is no `unit` field on the ingredient type; only the raw `quantity` number is returned. Display logic: use `plural` when `quantity > 1 && plural != null`, otherwise `singular`.
+
+Tips, description, and preparation steps may contain raw HTML from the API (e.g. `<a href=https://...>` with unquoted attributes). Render with `dangerouslySetInnerHTML` after normalising href quotes and adding `target="_blank" rel="noopener noreferrer"`.
+
 ### Schema constraints
 
 The GraphQL schema at `api.ah.nl/graphql` has **two distinct recipe types** that do NOT share fields:

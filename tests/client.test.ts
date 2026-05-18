@@ -103,7 +103,7 @@ const MOCK_RECIPE: Recipe = {
   publishedAt: "2026-01-01T00:00Z",
   images: [{ url: "https://example.com/img.jpg", width: 220, height: 162, rendition: "D220X162" }],
   tags: [{ key: "menugang", value: "hoofdgerecht" }],
-  ingredients: [{ id: 100, quantity: 200 }],
+  ingredients: [{ id: 100, quantity: 200, name: { singular: "spaghetti", plural: null } }],
   preparation: {
     steps: ["Step 1.", "Step 2."],
     summary: ["Do step 1 then step 2."],
@@ -382,7 +382,7 @@ describe("TS-CLIENT: AllerhandeClient", () => {
     expect(recipe.title).toBe("Test Recipe");
     expect(recipe.description).toBe("A test description.");
     expect(recipe.cookTime).toBe(30);
-    expect(recipe.ingredients).toEqual([{ id: 100, quantity: 200 }]);
+    expect(recipe.ingredients).toEqual([{ id: 100, quantity: 200, name: { singular: "spaghetti", plural: null } }]);
     expect(recipe.preparation.steps).toEqual(["Step 1.", "Step 2."]);
     expect(recipe.preparation.summary).toEqual(["Do step 1 then step 2."]);
     expect(recipe.tips).toEqual([{ type: "algemeen", value: "Use fresh ingredients." }]);

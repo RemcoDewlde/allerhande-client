@@ -9,6 +9,36 @@ interface Props {
   onClose: () => void;
 }
 
+/** Render API-supplied HTML safely, adding target=_blank to all links. */
+function RichText({
+  html,
+  className,
+}: {
+  html: string;
+  className?: string;
+}) {
+  const processed = html
+    .trim()
+    .replace(/<a(\s)/gi, '<a target="_blank" rel="noopener noreferrer"$1')
+    // Quote bare unquoted href values: href=https://... → href="https://..."
+    .replace(/href=(?!["'])([\S]+)/g, 'href="$1"');
+  return (
+    <span
+      className={className}
+      dangerouslySetInnerHTML={{ __html: processed }}
+    />
+  );
+}
+
+function ingredientLabel(
+  quantity: number,
+  name: { singular: string; plural: string | null }
+): string {
+  const label =
+    quantity !== 1 && name.plural != null ? name.plural : name.singular;
+  return `${quantity} ${label}`;
+}
+
 export function RecipeDetail({ id, slug, onClose }: Props) {
   const [recipe, setRecipe] = useState<Recipe | null>(null);
   const [loading, setLoading] = useState(true);
@@ -59,7 +89,9 @@ export function RecipeDetail({ id, slug, onClose }: Props) {
             </div>
 
             {recipe.description && (
-              <p className="modal-description">{recipe.description}</p>
+              <p className="modal-description">
+                <RichText html={recipe.description} />
+              </p>
             )}
 
             <section className="modal-section">
@@ -67,8 +99,7 @@ export function RecipeDetail({ id, slug, onClose }: Props) {
               <ul className="ingredient-list">
                 {recipe.ingredients.map((ing) => (
                   <li key={ing.id}>
-                    <code className="ing-id">#{ing.id}</code>
-                    <span className="ing-qty">× {ing.quantity}</span>
+                    {ingredientLabel(ing.quantity, ing.name)}
                   </li>
                 ))}
               </ul>
@@ -78,7 +109,9 @@ export function RecipeDetail({ id, slug, onClose }: Props) {
               <h4>Preparation</h4>
               <ol className="step-list">
                 {recipe.preparation.steps.map((step, i) => (
-                  <li key={i}>{step}</li>
+                  <li key={i}>
+                    <RichText html={step} />
+                  </li>
                 ))}
               </ol>
             </section>
@@ -89,7 +122,8 @@ export function RecipeDetail({ id, slug, onClose }: Props) {
                 <ul className="tip-list">
                   {recipe.tips.map((tip, i) => (
                     <li key={i}>
-                      <strong>{tip.type}:</strong> {tip.value}
+                      <strong>{tip.type}:</strong>{" "}
+                      <RichText html={tip.value} />
                     </li>
                   ))}
                 </ul>

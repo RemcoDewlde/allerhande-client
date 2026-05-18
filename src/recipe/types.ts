@@ -45,16 +45,21 @@ export interface RecipeSummary {
   author: RecipeAuthor | null;
 }
 
+/** Localised ingredient name. Use `plural` when quantity > 1 and it is non-null. */
+export interface RecipeIngredientName {
+  singular: string;
+  plural: string | null;
+}
+
 export interface RecipeIngredient {
   id: number;
-  /**
-   * Raw quantity in the recipe's declared unit (e.g. `200` for "200 g").
-   *
-   * @remarks The ingredient name and unit of measurement are **not** returned
-   * by the recipe endpoint — they live in Albert Heijn's product catalog,
-   * keyed by `id`. There is no public bulk-resolve endpoint for them.
-   */
+  /** Raw quantity in the recipe's declared unit (e.g. `200` for "200 g"). */
   quantity: number;
+  /**
+   * Human-readable ingredient name.
+   * Unit is not exposed by the API — only the numeric quantity is returned.
+   */
+  name: RecipeIngredientName;
 }
 
 export interface RecipePreparation {

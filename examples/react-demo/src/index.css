@@ -383,29 +383,17 @@ body {
 /* ── Ingredient list ──────────────────────────────────── */
 .ingredient-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 0.35rem;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.3rem;
   list-style: none;
 }
 
 .ingredient-list li {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.85rem;
-}
-
-.ing-id {
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 4px;
   color: var(--text-muted);
-  font-family: var(--mono);
-  font-size: 0.75rem;
-  padding: 0.1rem 0.35rem;
+  font-size: 0.875rem;
+  padding: 0.25rem 0;
+  border-bottom: 1px solid var(--border);
 }
-
-.ing-qty { color: var(--text-muted); }
 
 /* ── Step list ────────────────────────────────────────── */
 .step-list {
@@ -444,6 +432,13 @@ body {
 .tip-list li strong {
   color: var(--orange);
   text-transform: capitalize;
+}
+
+/* ── Inline rich-text links (from API HTML) ───────────── */
+.modal a {
+  color: var(--orange);
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 /* ── AH link ──────────────────────────────────────────── */

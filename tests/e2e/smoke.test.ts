@@ -173,12 +173,16 @@ describe("smoke: getRecipe", () => {
     }
   });
 
-  it("has ingredients with id and quantity", () => {
+  it("has ingredients with id, quantity, and name", () => {
     expect(Array.isArray(recipe.ingredients)).toBe(true);
     expect(recipe.ingredients.length).toBeGreaterThan(0);
     for (const ing of recipe.ingredients) {
       expect(typeof ing.id).toBe("number");
       expect(typeof ing.quantity).toBe("number");
+      expect(typeof ing.name.singular).toBe("string");
+      expect(ing.name.singular.length).toBeGreaterThan(0);
+      // plural is either a non-empty string or null
+      expect(ing.name.plural === null || typeof ing.name.plural === "string").toBe(true);
     }
   });
 

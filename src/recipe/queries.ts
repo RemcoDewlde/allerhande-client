@@ -43,7 +43,7 @@ export const GET_RECIPE_QUERY = `
       id title description cookTime publishedAt
       ${RECIPE_IMAGES}
       ${RECIPE_TAGS}
-      ingredients { id quantity }
+      ingredients { id quantity name { singular plural } }
       preparation { steps summary }
       tips { type value }
       author { __typename }

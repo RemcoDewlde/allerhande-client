@@ -11,6 +11,7 @@ export type {
   RecipeAuthor,
   RecipeImage,
   RecipeIngredient,
+  RecipeIngredientName,
   RecipeNutrient,
   RecipeNutritionInfo,
   RecipePreparation,
