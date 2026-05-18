@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/RemcoDewlde/allerhande-client/compare/v1.0.0...v1.0.1) (2026-05-18)
+
+
+### Bug Fixes
+
+* add repository url required for npm provenance verification ([223f0a7](https://github.com/RemcoDewlde/allerhande-client/commit/223f0a7b48a965d8c19f2f5a74e2f8429a91ab97))
+
 # 1.0.0 (2026-05-18)
 
 
