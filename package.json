@@ -1,0 +1,30 @@
+{
+  "name": "allerhande-api",
+  "version": "0.1.0",
+  "description": "Typed TypeScript/JavaScript API client for Albert Heijn Allerhande recipes",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "keywords": ["albert-heijn", "allerhande", "recipes", "api", "typescript"],
+  "license": "MIT",
+  "files": ["dist"],
+  "devDependencies": {
+    "tsup": "^8.0.0",
+    "typescript": "^5.0.0",
+    "vitest": "^2.0.0"
+  }
+}
