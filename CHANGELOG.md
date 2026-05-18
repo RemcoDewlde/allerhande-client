@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/RemcoDewlde/allerhande-client/compare/v1.0.0...v1.0.1) (2026-05-18)
+
+
+### Bug Fixes
+
+* set publishConfig access to public for npm provenance ([fbccca7](https://github.com/RemcoDewlde/allerhande-client/commit/fbccca7f5eff3934326a5d9bc58c011970454e27))
+
 # 1.0.0 (2026-05-18)
 
 
