@@ -1,4 +1,4 @@
-# allerhande-api
+# allerhande-client
 
 Unofficial typed TypeScript/JavaScript client for the [Albert Heijn Allerhande](https://www.ah.nl/allerhande) recipe API.
 
@@ -7,13 +7,13 @@ Unofficial typed TypeScript/JavaScript client for the [Albert Heijn Allerhande](
 ## Installation
 
 ```sh
-npm install allerhande-api
+npm install allerhande-client
 ```
 
 ## Usage
 
 ```ts
-import { AllerhandeClient } from "allerhande-api";
+import { AllerhandeClient } from "allerhande-client";
 
 const client = new AllerhandeClient();
 ```

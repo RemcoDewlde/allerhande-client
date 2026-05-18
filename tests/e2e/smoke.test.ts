@@ -1,6 +1,6 @@
 /**
  * ============================================================
- * E2E SMOKE TESTS — allerhande-api
+ * E2E SMOKE TESTS — allerhande-client
  * ============================================================
  *
  * These tests call the live Albert Heijn API. They are slow,

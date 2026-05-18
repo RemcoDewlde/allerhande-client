@@ -1,5 +1,5 @@
 {
-  "name": "allerhande-api",
+  "name": "allerhande-client",
   "version": "0.1.0",
   "description": "Typed TypeScript/JavaScript API client for Albert Heijn Allerhande recipes",
   "type": "module",
