@@ -65,5 +65,10 @@ jobs:
             # Align package.json with the release tag (handles concurrent-run edge cases)
             npm version "$VERSION" --no-git-tag-version --allow-same-version
             npm run build
-            npm publish --provenance
+            # Fetch a short-lived OIDC token scoped to npm and use it only for this publish
+            OIDC_JWT=$(curl -sSfL \
+              -H "Authorization: Bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+              "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=npm" \
+              | jq -r '.value')
+            NODE_AUTH_TOKEN="$OIDC_JWT" npm publish --provenance
           fi
