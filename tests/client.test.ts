@@ -109,6 +109,7 @@ const MOCK_RECIPE: Recipe = {
     summary: ["Do step 1 then step 2."],
   },
   tips: [{ type: "algemeen", value: "Use fresh ingredients." }],
+  nutrition: { energy: { value: 500, unit: "kcal" }, fat: { value: 20, unit: "g" }, saturatedFat: { value: 8, unit: "g" }, carbohydrates: { value: 60, unit: "g" }, protein: { value: 15, unit: "g" }, sodium: { value: 1.2, unit: "g" } },
   author: null,
 };
 
@@ -386,6 +387,7 @@ describe("TS-CLIENT: AllerhandeClient", () => {
     expect(recipe.preparation.steps).toEqual(["Step 1.", "Step 2."]);
     expect(recipe.preparation.summary).toEqual(["Do step 1 then step 2."]);
     expect(recipe.tips).toEqual([{ type: "algemeen", value: "Use fresh ingredients." }]);
+    expect(recipe.nutrition?.energy).toEqual({ value: 500, unit: "kcal" });
   });
 
   // -------------------------------------------------------------------------

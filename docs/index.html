@@ -467,6 +467,7 @@ console.log(result[0].nutrition?.energy);  // { value: 550, unit: "kcal" } or nu
 
 console.log(recipe.description);            // full Dutch description
 console.log(recipe.cookTime);               // 25 (minutes)
+console.log(recipe.nutrition?.energy);      // { value: 550, unit: "kcal" } or null
 console.log(recipe.preparation.steps);      // string[] — may contain HTML links
 console.log(recipe.tips);                   // [{ type: "bereidingstip", value: "..." }, ...]
 
@@ -670,7 +671,7 @@ try {
       <tr><th>Field</th><th>RecipeSummary</th><th>Recipe</th></tr>
       <tr><td><code>id, title, publishedAt, images, tags, author</code></td><td class="check">✓</td><td class="check">✓</td></tr>
       <tr><td><code>slug</code></td><td class="check">✓</td><td class="cross">✗</td></tr>
-      <tr><td><code>nutrition</code></td><td class="check">✓ <span class="partial">(fields nullable)</span></td><td class="cross">✗</td></tr>
+      <tr><td><code>nutrition</code></td><td class="check">✓ <span class="partial">(fields nullable)</span></td><td class="check">✓ <span class="partial">(fields nullable)</span></td></tr>
       <tr><td><code>description, cookTime, preparation, tips</code></td><td class="cross">✗</td><td class="check">✓</td></tr>
       <tr><td><code>ingredients</code> (with <code>name</code>)</td><td class="cross">✗</td><td class="check">✓</td></tr>
     </table>

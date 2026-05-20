@@ -1,5 +1,14 @@
 const RECIPE_IMAGES = `images { url width height rendition }`;
 const RECIPE_TAGS = `tags { key value }`;
+const RECIPE_NUTRITION = `
+  nutrition {
+    energy        { value unit }
+    fat           { value unit }
+    saturatedFat  { value unit }
+    carbohydrates { value unit }
+    protein       { value unit }
+    sodium        { value unit }
+  }`;
 
 export const SEARCH_RECIPES_QUERY = `
   query SearchRecipes(
@@ -23,14 +32,7 @@ export const SEARCH_RECIPES_QUERY = `
         id title slug publishedAt
         ${RECIPE_IMAGES}
         ${RECIPE_TAGS}
-        nutrition {
-          energy        { value unit }
-          fat           { value unit }
-          saturatedFat  { value unit }
-          carbohydrates { value unit }
-          protein       { value unit }
-          sodium        { value unit }
-        }
+        ${RECIPE_NUTRITION}
         author { __typename }
       }
     }
@@ -46,6 +48,7 @@ export const GET_RECIPE_QUERY = `
       ingredients { id quantity name { singular plural } }
       preparation { steps summary }
       tips { type value }
+      ${RECIPE_NUTRITION}
       author { __typename }
     }
   }

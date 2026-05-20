@@ -41,12 +41,12 @@ The GraphQL schema at `api.ah.nl/graphql` has **two distinct recipe types** that
 | Field | `RecipeSummary` (search) | `Recipe` (by ID) |
 |---|---|---|
 | `slug` | ✓ | ✗ |
-| `nutrition` | ✓ | ✗ |
 | `description` | ✗ | ✓ |
 | `cookTime` | ✗ | ✓ |
 | `ingredients` | ✗ | ✓ |
 | `preparation` | ✗ | ✓ |
 | `tips` | ✗ | ✓ |
+| `nutrition` | ✓ | ✓ |
 
 Both share: `id`, `title`, `publishedAt`, `images`, `tags`, `author`.
 

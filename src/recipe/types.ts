@@ -18,7 +18,7 @@ export interface RecipeNutrient {
   unit: string;
 }
 
-/** Per-serving nutritional information (only available on search summaries) */
+/** Per-serving nutritional information */
 export interface RecipeNutritionInfo {
   energy: RecipeNutrient | null;
   fat: RecipeNutrient | null;
@@ -88,5 +88,7 @@ export interface Recipe {
   ingredients: RecipeIngredient[];
   preparation: RecipePreparation;
   tips: RecipeTip[];
+  /** Null when the recipe has no nutritional data */
+  nutrition: RecipeNutritionInfo | null;
   author: RecipeAuthor | null;
 }
