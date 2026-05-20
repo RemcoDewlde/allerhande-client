@@ -46,9 +46,15 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Get npm OIDC token
+        run: |
+          echo "NPM_TOKEN=$(curl -sSfL \
+            -H "Authorization: Bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=npm" \
+            | jq -r '.value')" >> "$GITHUB_ENV"
+
       - name: Release
         run: npx semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_CONFIG_PROVENANCE: "true"
