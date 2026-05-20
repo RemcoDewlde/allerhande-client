@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/RemcoDewlde/allerhande-client/compare/v1.0.1...v1.1.0) (2026-05-20)
+
+
+### Features
+
+* add nutrition fields to Recipe detail query ([7a21204](https://github.com/RemcoDewlde/allerhande-client/commit/7a21204cf277286ee64bcd7d76595689fa22a871))
+
 ## [1.0.1](https://github.com/RemcoDewlde/allerhande-client/compare/v1.0.0...v1.0.1) (2026-05-18)
 
 
