@@ -29,6 +29,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+          registry-url: 'https://registry.npmjs.org'
 
       - run: npm ci
 
@@ -46,19 +47,12 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Get npm publish token via OIDC
+      - name: Get npm OIDC token
         run: |
-          OIDC_TOKEN=$(curl -sSfL \
+          echo "NODE_AUTH_TOKEN=$(curl -sSfL \
             -H "Authorization: Bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
             "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=npm" \
-            | jq -r '.value')
-          NPM_TOKEN=$(curl -sSfL \
-            -X POST \
-            -H "Content-Type: application/json" \
-            -d "{\"idToken\":\"$OIDC_TOKEN\"}" \
-            "https://registry.npmjs.org/-/npm/v1/login/oidc" \
-            | jq -r '.token')
-          echo "NPM_TOKEN=${NPM_TOKEN}" >> "$GITHUB_ENV"
+            | jq -r '.value')" >> "$GITHUB_ENV"
 
       - name: Release
         run: npx semantic-release
